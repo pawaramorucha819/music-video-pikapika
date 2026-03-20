@@ -145,7 +145,7 @@ export const PreChorusScene: React.FC<{
   );
 
   // Light leak at line 3 ("最高潮まで つれてって！")
-  const LIGHT_LEAK_START = 315;
+  const LIGHT_LEAK_START = 270;
   const lightLeakDuration = durationInFrames - LIGHT_LEAK_START;
 
   return (
