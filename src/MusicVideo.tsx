@@ -12,6 +12,7 @@ import { VerseScene } from "./VerseScene";
 import { zoom } from "./ZoomTransition";
 import { noteTransition } from "./NoteTransition";
 import { dipToWhite } from "./DipToWhiteTransition";
+import { Chorus1Scene } from "./Chorus1Scene";
 
 const FPS = 30;
 const TRANSITION = 20;
@@ -102,21 +103,16 @@ export const MusicVideo: React.FC = () => {
           timing={linearTiming({ durationInFrames: DIP_TO_WHITE })}
         />
 
-        {/* CHORUS Part 1 42-51s */}
+        {/* CHORUS Part 1 42-53s */}
         <TransitionSeries.Sequence durationInFrames={CHORUS1}>
-          <LyricSection
+          <Chorus1Scene
             lines={[
               "電波にのって　ぴぴぴっと！",
               "ハートが跳ねる　らびゅらびゅ！",
               "きらめくメロディ　むげん大",
               "キミとなら全部　たのしいじゃん！",
             ]}
-            sectionLabel="CHORUS"
-            bgColors={["#f43f5e", "#d946ef", "#06b6d4"]}
-            particleColor="rgba(255,255,255,0.8)"
-            glowColor="rgba(217,70,239,0.7)"
             lineDelays={[40, 120, 210, 300]}
-            fontSize={60}
           />
         </TransitionSeries.Sequence>
 
