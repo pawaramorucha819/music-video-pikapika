@@ -95,33 +95,36 @@ export const LyricSection: React.FC<{
         {sectionLabel}
       </div>
 
-      {/* Lyrics */}
-      <AbsoluteFill
+      {/* Lyrics — one line at a time, bottom of screen */}
+      <div
         style={{
+          position: "absolute",
+          bottom: 80,
+          left: 0,
+          right: 0,
+          display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          padding: 80,
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-            alignItems: "center",
-          }}
-        >
-          {lines.map((line, i) => (
+        {lines.map((line, i) => {
+          const delay = 40 + i * lineInterval;
+          const endDelay =
+            i < lines.length - 1
+              ? 40 + (i + 1) * lineInterval
+              : undefined;
+          return (
             <LyricLine
               key={i}
               text={line}
-              delay={40 + i * lineInterval}
+              delay={delay}
+              endDelay={endDelay}
               fontSize={fontSize}
               glowColor={glowColor}
             />
-          ))}
-        </div>
-      </AbsoluteFill>
+          );
+        })}
+      </div>
 
       {/* Vignette overlay */}
       <AbsoluteFill

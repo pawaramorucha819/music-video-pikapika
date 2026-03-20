@@ -243,36 +243,36 @@ export const IntroScene: React.FC<{
         barColor="rgba(168,85,247,0.5)"
       />
 
-      {/* --- Lyrics overlay (fixed position, not affected by tilt) --- */}
-      <AbsoluteFill
+      {/* --- Lyrics: one line at a time, bottom of screen --- */}
+      <div
         style={{
+          position: "absolute",
+          bottom: 80,
+          left: 0,
+          right: 0,
+          display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          padding: 80,
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-            alignItems: "center",
-          }}
-        >
-          {lines.map((line, i) => {
-            const delay = lineDelays[i] ?? 0;
-            return (
-              <LyricLine
-                key={i}
-                text={line}
-                delay={delay}
-                fontSize={56}
-                glowColor={glowColor}
-              />
-            );
-          })}
-        </div>
-      </AbsoluteFill>
+        {lines.map((line, i) => {
+          const delay = lineDelays[i] ?? 0;
+          const endDelay =
+            i < lines.length - 1
+              ? lineDelays[i + 1]
+              : undefined;
+          return (
+            <LyricLine
+              key={i}
+              text={line}
+              delay={delay}
+              endDelay={endDelay}
+              fontSize={56}
+              glowColor={glowColor}
+            />
+          );
+        })}
+      </div>
 
       {/* Vignette */}
       <AbsoluteFill
