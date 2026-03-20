@@ -8,8 +8,6 @@ import {
 } from "remotion";
 import { Audio } from "@remotion/media";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
-import { slide } from "@remotion/transitions/slide";
-import { LyricSection } from "./LyricSection";
 import { PreChorusScene } from "./PreChorusScene";
 import { TitleCard } from "./TitleCard";
 import { ShootingStars } from "./ShootingStars";
@@ -19,6 +17,7 @@ import { zoom } from "./ZoomTransition";
 import { noteTransition } from "./NoteTransition";
 import { dipToWhite } from "./DipToWhiteTransition";
 import { Chorus1Scene } from "./Chorus1Scene";
+import { Chorus2Scene } from "./Chorus2Scene";
 
 const FPS = 30;
 const TRANSITION = 20;
@@ -140,25 +139,20 @@ export const MusicVideo: React.FC = () => {
         </TransitionSeries.Sequence>
 
         <TransitionSeries.Transition
-          presentation={slide({ direction: "from-right" })}
+          presentation={zoom()}
           timing={linearTiming({ durationInFrames: TRANSITION })}
         />
 
-        {/* CHORUS Part 2 51-60s */}
+        {/* CHORUS Part 2 53.5-68s */}
         <TransitionSeries.Sequence durationInFrames={CHORUS2}>
-          <LyricSection
+          <Chorus2Scene
             lines={[
               "ぱちぱち光る　まほうみたい",
               "世界を染める　ポップサイン",
               "歌って笑って　はしゃいじゃえ",
               "いっしょに今日は　最強だよ！",
             ]}
-            sectionLabel="CHORUS"
-            bgColors={["#8b5cf6", "#06b6d4", "#10b981"]}
-            particleColor="rgba(255,255,255,0.8)"
-            glowColor="rgba(139,92,246,0.7)"
             lineDelays={[45, 109, 201, 285]}
-            fontSize={60}
           />
         </TransitionSeries.Sequence>
       </TransitionSeries>
