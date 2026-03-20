@@ -93,6 +93,7 @@ export const MusicVideo: React.FC = () => {
               "せーのでいこうよ　まだまだもっと",
               "最高潮まで　つれてって！",
             ]}
+            durationInFrames={PRECHORUS}
           />
         </TransitionSeries.Sequence>
 
