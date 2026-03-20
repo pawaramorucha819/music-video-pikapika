@@ -260,43 +260,33 @@ const MusicNoteFlood: React.FC<{
     >
       {Array.from({ length: noteCount }, (_, i) => {
         // Stagger note appearance
-        const delay = hash(i * 7, 40);
+        const delay = hash(i * 7, 50);
         const noteLocal = localFrame - delay;
         if (noteLocal < 0) return null;
 
-        // Spawn from TV frame edge (TV body: 480x360 centered at TV_CX,TV_CY)
-        const tvFrameW = 500;
-        const tvFrameH = 390;
-        const perimeter = (tvFrameW + tvFrameH) * 2;
-        const pos = hash(i * 31, Math.round(perimeter));
-        let edgeX: number;
-        let edgeY: number;
-        if (pos < tvFrameW) {
-          edgeX = TV_CX - tvFrameW / 2 + pos; edgeY = TV_CY - tvFrameH / 2; // top
-        } else if (pos < tvFrameW + tvFrameH) {
-          edgeX = TV_CX + tvFrameW / 2; edgeY = TV_CY - tvFrameH / 2 + (pos - tvFrameW); // right
-        } else if (pos < tvFrameW * 2 + tvFrameH) {
-          edgeX = TV_CX + tvFrameW / 2 - (pos - tvFrameW - tvFrameH); edgeY = TV_CY + tvFrameH / 2; // bottom
-        } else {
-          edgeX = TV_CX - tvFrameW / 2; edgeY = TV_CY + tvFrameH / 2 - (pos - tvFrameW * 2 - tvFrameH); // left
-        }
+        // Spawn from TV right edge, random Y along the right side
+        const tvRightX = TV_CX + 250;
+        const tvTopY = TV_CY - 195;
+        const edgeY = tvTopY + hash(i * 31, 390);
 
-        // Fly outward from edge
-        const angle = Math.atan2(edgeY - TV_CY, edgeX - TV_CX) + (hash(i * 41, 40) - 20) * 0.02;
-        const speed = 2 + hash(i * 17, 25) / 10;
-        const dist = noteLocal * speed;
-        const x = (edgeX + Math.cos(angle) * dist) / 1920 * 100;
-        const y = (edgeY + Math.sin(angle) * dist) / 1080 * 100;
+        // Flow leftward with slight vertical wave
+        const speed = 3 + hash(i * 17, 20) / 10;
+        const waveY = Math.sin((noteLocal + hash(i * 23, 60)) * 0.07) * 40;
+        const x = (tvRightX - noteLocal * speed) / 1920 * 100;
+        const y = (edgeY + waveY) / 1080 * 100;
 
-        // Fade in then stay, slight wave
-        const opacity = interpolate(noteLocal, [0, 8, 70, 110], [0, 0.9, 0.7, 0], {
+        // Off screen left → hide
+        if (x < -5) return null;
+
+        // Fade in then stay
+        const opacity = interpolate(noteLocal, [0, 10, 80, 120], [0, 0.9, 0.8, 0], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
         });
         if (opacity <= 0) return null;
 
-        const size = 18 + hash(i * 19, 24);
-        const rotation = Math.sin((noteLocal + hash(i * 23, 50)) * 0.06) * 30;
+        const size = 36 + hash(i * 19, 28);
+        const rotation = Math.sin((noteLocal + hash(i * 29, 50)) * 0.05) * 20;
         const color = NOTE_COLORS[i % NOTE_COLORS.length];
         const symbol = NOTE_SYMBOLS[i % NOTE_SYMBOLS.length];
 
