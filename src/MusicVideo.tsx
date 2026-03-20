@@ -1,16 +1,7 @@
 import React from "react";
-import {
-  staticFile,
-  Sequence,
-  AbsoluteFill,
-  useCurrentFrame,
-  useVideoConfig,
-  interpolate,
-  Easing,
-} from "remotion";
+import { staticFile } from "remotion";
 import { Audio } from "@remotion/media";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
-import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
 import { LyricSection } from "./LyricSection";
 import { PreChorusScene } from "./PreChorusScene";
@@ -20,6 +11,7 @@ import { IntroScene } from "./IntroScene";
 import { VerseScene } from "./VerseScene";
 import { zoom } from "./ZoomTransition";
 import { noteTransition } from "./NoteTransition";
+import { dipToWhite } from "./DipToWhiteTransition";
 
 const FPS = 30;
 const TRANSITION = 20;
@@ -42,24 +34,6 @@ const CHORUS2 = 9 * FPS; // 270 (51-60s)
 export const MUSIC_VIDEO_DURATION =
   PRELUDE + INTRO + VERSE + PRECHORUS + CHORUS1 + CHORUS2 -
   TRANSITION - NOTE_TRANSITION - TRANSITION - TRANSITION;
-
-/** White flash: fades in to white, holds, then fades out */
-const DipToWhite: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
-  const mid = durationInFrames / 2;
-  const opacity = interpolate(
-    frame,
-    [0, mid * 0.6, mid, mid + mid * 0.4, durationInFrames],
-    [0, 1, 1, 1, 0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.quad) },
-  );
-  return (
-    <AbsoluteFill
-      style={{ backgroundColor: "white", opacity, pointerEvents: "none" }}
-    />
-  );
-};
 
 export const MusicVideo: React.FC = () => {
   return (
@@ -123,7 +97,7 @@ export const MusicVideo: React.FC = () => {
         </TransitionSeries.Sequence>
 
         <TransitionSeries.Transition
-          presentation={fade()}
+          presentation={dipToWhite()}
           timing={linearTiming({ durationInFrames: TRANSITION })}
         />
 
@@ -168,11 +142,6 @@ export const MusicVideo: React.FC = () => {
           />
         </TransitionSeries.Sequence>
       </TransitionSeries>
-
-      {/* Dip to white: absolute frames 1110-1271 (PRE-CHORUS〜CHORUS冒頭) */}
-      <Sequence from={1110} durationInFrames={1271 - 1110} layout="none">
-        <DipToWhite />
-      </Sequence>
     </>
   );
 };
