@@ -15,6 +15,9 @@ const { fontFamily } = loadFont();
 const hash = (seed: number, mod: number) =>
   ((seed * 7919 + 104729) % mod + mod) % mod;
 
+const HEART_PATH =
+  "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z";
+
 // TV position constants
 const TV_CX = 1050;
 const TV_CY = 500;
@@ -33,7 +36,7 @@ const TvTower: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
 
   return (
     <g
-      transform={`translate(0, ${towerBottom}) scale(1, ${scaleY})`}
+      transform={`scale(1, ${scaleY})`}
       style={{ transformOrigin: `${TOWER_X}px ${towerBottom}px` }}
     >
       {/* Tower legs with red-white banding */}
@@ -170,8 +173,6 @@ const BigTv: React.FC<{
     ? interpolate(beatCycle, [0, 3, 6, 15], [0.5, 1, 0.6, 0.5], { extrapolateRight: "clamp" })
     : 0;
 
-  const heartSize = 80;
-
   return (
     <g transform={`translate(${TV_CX}, ${TV_CY}) scale(${scale})`} opacity={opacity}>
       {/* TV body */}
@@ -205,27 +206,16 @@ const BigTv: React.FC<{
         </g>
       )}
 
-      {/* Large pulsing heart */}
+      {/* Large pulsing heart (same shape as SpinningHearts) */}
       {showHeart && (
         <g clipPath="url(#screen-clip)">
           {/* Heart glow background */}
-          <circle cx={0} cy={0} r={heartSize * 1.5} fill="#f43f5e" opacity={beatGlow * 0.15} />
-          <g transform={`scale(${beatScale})`}>
+          <circle cx={0} cy={0} r={100} fill="#ec4899" opacity={beatGlow * 0.2} />
+          <g transform={`translate(-90, -80) scale(${beatScale * 7.5})`}>
             <path
-              d={`M 0 ${heartSize * 0.35}
-                  C 0 ${-heartSize * 0.25}, ${-heartSize * 0.6} ${-heartSize * 0.55}, ${-heartSize * 0.6} ${-heartSize * 0.15}
-                  C ${-heartSize * 0.6} ${heartSize * 0.2}, 0 ${heartSize * 0.5}, 0 ${heartSize * 0.8}
-                  C 0 ${heartSize * 0.5}, ${heartSize * 0.6} ${heartSize * 0.2}, ${heartSize * 0.6} ${-heartSize * 0.15}
-                  C ${heartSize * 0.6} ${-heartSize * 0.55}, 0 ${-heartSize * 0.25}, 0 ${heartSize * 0.35} Z`}
-              fill="#f43f5e"
-              opacity={0.95}
-            />
-            {/* Heart highlight */}
-            <ellipse
-              cx={-heartSize * 0.22} cy={-heartSize * 0.1}
-              rx={heartSize * 0.15} ry={heartSize * 0.12}
-              fill="white" opacity={0.25}
-              transform="rotate(-20)"
+              d={HEART_PATH}
+              fill="#ec4899"
+              filter="drop-shadow(0 0 3px rgba(236,72,153,0.8))"
             />
           </g>
         </g>
