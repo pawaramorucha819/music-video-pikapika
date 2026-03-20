@@ -157,11 +157,12 @@ export const IntroScene: React.FC<{
     extrapolateRight: "clamp",
   });
 
-  // First lyric appears during tilt (6-8s in the song)
-  const firstLineDelay = 15;
-  // Remaining lyrics appear after tilt
-  const remainingLineDelay = TILT_DURATION + 20;
-  const lineInterval = 55;
+  // Per-line delays (frames within this section; section starts at 6s)
+  // Line 0: "ピカピカ光る…"   → 6.5s  = frame 15
+  // Line 1: "くるくる回る…"   → 8.0s  = frame 60
+  // Line 2: "ほら始まるよ…"   → 11.17s = frame 155
+  // Line 3: "キミとわたしで…" → 14.0s  = frame 240
+  const lineDelays = [15, 60, 155, 240];
 
   return (
     <AbsoluteFill style={{ fontFamily, overflow: "hidden" }}>
@@ -259,10 +260,7 @@ export const IntroScene: React.FC<{
           }}
         >
           {lines.map((line, i) => {
-            const delay =
-              i === 0
-                ? firstLineDelay
-                : remainingLineDelay + (i - 1) * lineInterval;
+            const delay = lineDelays[i] ?? 0;
             return (
               <LyricLine
                 key={i}
