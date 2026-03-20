@@ -57,12 +57,12 @@ export const AudioWaveform: React.FC<{
   });
 
   // --- Waveform SVG ---
-  const waveHeight = 120;
+  const waveHeight = 200;
   const waveform = visualizeAudioWaveform({
     fps,
     frame: globalFrame,
     audioData,
-    numberOfSamples: 128,
+    numberOfSamples: 256,
     windowInSeconds: 0.3,
     dataOffsetInSeconds,
   });
@@ -74,72 +74,97 @@ export const AudioWaveform: React.FC<{
     })),
   });
 
+  // Mirror path (reflected below center)
+  const mirrorPath = createSmoothSvgPath({
+    points: waveform.map((y, i) => ({
+      x: (i / (waveform.length - 1)) * width,
+      y: waveHeight / 2 - (y * waveHeight) / 2,
+    })),
+  });
+
   // Fade in
   const opacity =
     localFrame < 10
       ? localFrame / 10
       : 1;
 
+  // Bass-reactive glow intensity
+  const lowFreqs = frequencies.slice(0, 16);
+  const bassGlow =
+    lowFreqs.reduce((sum, v) => sum + v, 0) / lowFreqs.length;
+  const glowSize = 6 + bassGlow * 20;
+
   // Select a subset of frequencies for the bar display
-  const barCount = 32;
-  const barWidth = width / barCount - 2;
+  const barCount = 48;
+  const barWidth = (width * 0.7) / barCount - 2;
 
   return (
     <div
       style={{
         position: "absolute",
-        bottom: 0,
+        top: 0,
         left: 0,
         right: 0,
-        height: 200,
+        bottom: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         opacity,
         pointerEvents: "none",
       }}
     >
-      {/* Frequency bars */}
+      {/* Centered frequency bars (mirrored up & down) */}
       <div
         style={{
           position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 80,
+          left: "15%",
+          right: "15%",
+          top: "50%",
+          transform: "translateY(-50%)",
+          height: 160,
           display: "flex",
-          alignItems: "flex-end",
+          alignItems: "center",
           justifyContent: "center",
           gap: 2,
         }}
       >
-        {frequencies.slice(0, barCount).map((v, i) => (
-          <div
-            key={i}
-            style={{
-              width: barWidth,
-              height: `${Math.max(v * 100, 2)}%`,
-              background: `linear-gradient(to top, ${barColor}, ${color})`,
-              borderRadius: 2,
-              boxShadow: `0 0 6px ${barColor}`,
-            }}
-          />
-        ))}
+        {frequencies.slice(0, barCount).map((v, i) => {
+          const barH = Math.max(v * 100, 2);
+          return (
+            <div
+              key={i}
+              style={{
+                width: barWidth,
+                height: `${barH}%`,
+                background: `linear-gradient(to top, ${barColor}, ${color}, ${barColor})`,
+                borderRadius: 3,
+                boxShadow: `0 0 ${glowSize}px ${barColor}`,
+              }}
+            />
+          );
+        })}
       </div>
 
-      {/* Waveform line */}
+      {/* Waveform lines (mirrored, centered) */}
       <svg
         width={width}
         height={waveHeight}
-        style={{
-          position: "absolute",
-          bottom: 60,
-          left: 0,
-        }}
+        style={{ position: "absolute", top: "50%", transform: "translateY(-50%)" }}
       >
         <path
           d={path}
           fill="none"
           stroke={color}
-          strokeWidth={2.5}
-          filter={`drop-shadow(0 0 4px ${color})`}
+          strokeWidth={3}
+          filter={`drop-shadow(0 0 ${glowSize}px ${color})`}
+        />
+        <path
+          d={mirrorPath}
+          fill="none"
+          stroke={color}
+          strokeWidth={2}
+          opacity={0.5}
+          filter={`drop-shadow(0 0 ${glowSize}px ${color})`}
         />
       </svg>
     </div>
