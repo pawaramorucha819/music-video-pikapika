@@ -35,8 +35,8 @@ export const SodaBubbles: React.FC<{ count?: number }> = ({ count = 50 }) => {
           [-wobbleAmt, wobbleAmt, -wobbleAmt],
         );
 
-        // Fade in at bottom, fade out at top
-        const opacity = interpolate(y, [100, 80, 20, -5], [0, 0.6, 0.5, 0], {
+        // Fade in at bottom, fade out at top (inputRange must be ascending)
+        const opacity = interpolate(y, [-5, 20, 80, 100], [0, 0.5, 0.6, 0], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
         });
