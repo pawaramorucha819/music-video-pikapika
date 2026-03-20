@@ -397,6 +397,50 @@ const FallingNotes: React.FC<{ frame: number; startFrame: number }> = ({ frame, 
   );
 };
 
+/* ── Star-salon style star particles ── */
+const StarParticles: React.FC<{ frame: number; count: number }> = ({ frame, count }) => (
+  <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+    {Array.from({ length: count }, (_, i) => {
+      const x = hash(i * 3 + 500, 1920);
+      const baseY = hash(i * 7 + 300, 1080);
+      const size = 8 + hash(i * 11, 18);
+      const period = hash(i * 13, 30) + 25;
+      const phase = hash(i * 17, 60);
+      const drift = hash(i * 19, 60) - 30;
+
+      const t = (frame + phase) % period;
+      const opacity = interpolate(t, [0, period * 0.3, period * 0.7, period], [0, 0.9, 0.9, 0]);
+      const scale = interpolate(t, [0, period * 0.3, period * 0.7, period], [0.3, 1, 1, 0.3]);
+      const yOffset = interpolate(frame, [0, 600], [0, drift], { extrapolateRight: "extend" });
+      const rotation = interpolate(frame + phase, [0, 120], [0, 360], { extrapolateRight: "extend" });
+      const colors = ["#fbbf24", "#ec4899", "#8b5cf6", "#06b6d4", "#fff", "#34d399", "#f472b6", "#a78bfa"];
+      const color = colors[i % colors.length];
+
+      return (
+        <div
+          key={i}
+          style={{
+            position: "absolute",
+            left: x,
+            top: baseY + yOffset,
+            opacity,
+            transform: `scale(${scale}) rotate(${rotation}deg)`,
+          }}
+        >
+          {/* 4-pointed star shape */}
+          <svg width={size} height={size} viewBox="0 0 24 24">
+            <path
+              d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z"
+              fill={color}
+              filter={`drop-shadow(0 0 ${size / 3}px ${color})`}
+            />
+          </svg>
+        </div>
+      );
+    })}
+  </div>
+);
+
 /* ── Chorus2Scene ── */
 export const Chorus2Scene: React.FC<{
   lines: string[];
@@ -413,6 +457,9 @@ export const Chorus2Scene: React.FC<{
       <AbsoluteFill
         style={{ background: `linear-gradient(${bgAngle}deg, #0a0020, #1a0a3e, #0c1445)` }}
       />
+
+      {/* Star particles (全体) */}
+      <StarParticles frame={frame} count={50} />
 
       {/* Fireworks (ぱちぱち光る まほうみたい) */}
       <FireworksDisplay frame={frame} />
