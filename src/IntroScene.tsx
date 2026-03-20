@@ -10,6 +10,8 @@ import { loadFont } from "@remotion/google-fonts/NotoSansJP";
 import { LyricLine } from "./LyricLine";
 import { PenLights } from "./PenLights";
 import { Particles } from "./Particles";
+import { SpinningHearts } from "./SpinningHearts";
+import { AudioWaveform, useAudioBass } from "./AudioWaveform";
 
 const { fontFamily } = loadFont();
 
@@ -128,6 +130,13 @@ export const IntroScene: React.FC<{
   const frame = useCurrentFrame();
   useVideoConfig();
 
+  // Audio offset: this section starts at 6s in the song
+  const AUDIO_OFFSET = 6;
+  const bassIntensity = useAudioBass(AUDIO_OFFSET);
+
+  // Hearts + waveform appear with 2nd lyric (frame ~60 = 8s in song)
+  const HEARTS_ENTER = 55;
+
   // --- Tilt camera: first ~60 frames (2s) ---
   // The "virtual canvas" is 180% tall; we tilt from bottom (crowd) up to center (stage)
   const TILT_DURATION = 60;
@@ -221,6 +230,17 @@ export const IntroScene: React.FC<{
         {/* Floating particles (smoke/haze) */}
         <Particles count={25} color="rgba(180,160,255,0.3)" />
       </div>
+
+      {/* Spinning hearts (8-11s: くるくる回る ハートのノイズ) */}
+      <SpinningHearts enterFrame={HEARTS_ENTER} bassIntensity={bassIntensity} />
+
+      {/* Audio waveform */}
+      <AudioWaveform
+        audioOffsetInSeconds={AUDIO_OFFSET}
+        enterFrame={HEARTS_ENTER}
+        color="rgba(236,72,153,0.6)"
+        barColor="rgba(168,85,247,0.5)"
+      />
 
       {/* --- Lyrics overlay (fixed position, not affected by tilt) --- */}
       <AbsoluteFill
