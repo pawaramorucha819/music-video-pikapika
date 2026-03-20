@@ -22,7 +22,8 @@ const HEART_PATH =
 const TV_CX = 1050;
 const TV_CY = 500;
 const TOWER_X = 320;
-const TOWER_TIP_Y = 20;
+// Tower tip visual position: tower elements at y=20 + translate(0, 750) = 770
+const TOWER_TIP_Y = 770;
 
 /* ── Realistic TV Tower ── */
 const TvTower: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
@@ -36,7 +37,7 @@ const TvTower: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
 
   return (
     <g
-      transform={`scale(1, ${scaleY})`}
+      transform={`translate(0, ${towerBottom}) scale(1, ${scaleY})`}
       style={{ transformOrigin: `${TOWER_X}px ${towerBottom}px` }}
     >
       {/* Tower legs with red-white banding */}
