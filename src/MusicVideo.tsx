@@ -5,6 +5,7 @@ import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
 import { LyricSection } from "./LyricSection";
+import { PreChorusScene } from "./PreChorusScene";
 import { TitleCard } from "./TitleCard";
 import { ShootingStars } from "./ShootingStars";
 import { IntroScene } from "./IntroScene";
@@ -85,18 +86,13 @@ export const MusicVideo: React.FC = () => {
 
         {/* PRE-CHORUS 29-42s */}
         <TransitionSeries.Sequence durationInFrames={PRECHORUS}>
-          <LyricSection
+          <PreChorusScene
             lines={[
               "まばたき禁止の　この瞬間",
               "カラフル世界が　踊りだす",
               "せーのでいこうよ　まだまだもっと",
               "最高潮まで　つれてって！",
             ]}
-            sectionLabel="PRE-CHORUS"
-            bgColors={["#f59e0b", "#ef4444", "#ec4899"]}
-            particleColor="rgba(253,230,138,0.7)"
-            glowColor="rgba(239,68,68,0.6)"
-            lineInterval={97}
           />
         </TransitionSeries.Sequence>
 
