@@ -245,7 +245,7 @@ const MirrorBall: React.FC<{ frame: number; startFrame: number }> = ({ frame, st
   const local = frame - startFrame;
   if (local < 0) return null;
 
-  const ballSize = 120;
+  const ballSize = 280;
   // Descend from above
   const yPos = interpolate(local, [0, 40], [-ballSize, 180], {
     extrapolateRight: "clamp",
@@ -368,7 +368,7 @@ const FallingNotes: React.FC<{ frame: number; startFrame: number }> = ({ frame, 
 
         const swayX = Math.sin((noteLocal + hash(i * 23, 60)) * 0.04) * 40;
         const rotation = Math.sin((noteLocal + hash(i * 29, 50)) * 0.03) * 25;
-        const size = 30 + hash(i * 19, 25);
+        const size = 60 + hash(i * 19, 40);
         const color = NOTE_COLORS[i % NOTE_COLORS.length];
         const symbol = NOTE_SYMBOLS[i % NOTE_SYMBOLS.length];
         const opacity = interpolate(noteLocal, [0, 8, 60, 90], [0, 0.9, 0.8, 0.6], {
