@@ -19,6 +19,7 @@ export const LyricSection: React.FC<{
   particleColor?: string;
   glowColor?: string;
   lineInterval?: number;
+  lineDelays?: number[];
   fontSize?: number;
 }> = ({
   lines,
@@ -27,6 +28,7 @@ export const LyricSection: React.FC<{
   particleColor = "rgba(255,255,255,0.6)",
   glowColor = "rgba(255,255,255,0.5)",
   lineInterval = 55,
+  lineDelays,
   fontSize = 56,
 }) => {
   const frame = useCurrentFrame();
@@ -108,10 +110,10 @@ export const LyricSection: React.FC<{
         }}
       >
         {lines.map((line, i) => {
-          const delay = 40 + i * lineInterval;
+          const delay = lineDelays ? lineDelays[i] : 40 + i * lineInterval;
           const endDelay =
             i < lines.length - 1
-              ? 40 + (i + 1) * lineInterval
+              ? (lineDelays ? lineDelays[i + 1] : 40 + (i + 1) * lineInterval)
               : undefined;
           return (
             <LyricLine
