@@ -206,10 +206,11 @@ export const PreChorusScene: React.FC<{
       </AbsoluteFill>
 
       {/* ── Light leak at "最高潮まで つれてって！" ── */}
+      {/* durationInFrames を3倍にして reveal フェーズのまま次セクションへ繋ぐ */}
       {frame >= LIGHT_LEAK_START && (
         <Sequence from={LIGHT_LEAK_START} durationInFrames={lightLeakDuration} layout="none">
           <AbsoluteFill>
-            <LightLeak seed={3} hueShift={30} />
+            <LightLeak seed={3} hueShift={30} durationInFrames={lightLeakDuration * 3} />
           </AbsoluteFill>
         </Sequence>
       )}
