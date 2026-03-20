@@ -91,8 +91,8 @@ export const VerseScene: React.FC<{
   // Line 0: "しゅわしゅわソーダ…"  → immediate (frame 5)
   // Line 1: "パステル信号…"        → 20.15s = frame 65
   // Line 2: "ドキドキしちゃう…"    → ~23s = frame 150
-  // Line 3: "リズムにのって…"      → ~26s = frame 240
-  const lineDelays = [5, 65, 150, 240];
+  // Line 3: "リズムにのって…"      → 25.22s = frame 217
+  const lineDelays = [5, 65, 150, 217];
 
   // --- Tilt: soda glass → sky ---
   // Tilt starts around frame 50, completes by frame 80
