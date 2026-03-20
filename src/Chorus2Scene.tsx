@@ -4,258 +4,241 @@ import {
   useCurrentFrame,
   useVideoConfig,
   interpolate,
+  Easing,
 } from "remotion";
 import { loadFont } from "@remotion/google-fonts/NotoSansJP";
 import { LyricLine } from "./LyricLine";
 
 const { fontFamily } = loadFont();
 
-const PIXEL = 2;
-const SPRITE_W = 96;
-const SPRITE_H = 96;
+const hash = (seed: number, mod: number) =>
+  ((seed * 7919 + 104729) % mod + mod) % mod;
 
-/* ── idle.json palette (all colors including 0) ── */
-const PALETTE: Record<string, string> = {
-  "0": "#EFEEEB",
-  "1": "#1F0E09", "2": "#905731", "3": "#D35F51", "4": "#562516",
-  "5": "#CB4939", "6": "#A46150", "7": "#E1946F", "8": "#F4D5B2",
-  "9": "#9E3026", "A": "#E1AA93", "B": "#C7372E", "C": "#ABA29D",
-  "D": "#6C492E", "E": "#695F57", "F": "#5788A1",
-};
+/* ── Firework burst ── */
+const Firework: React.FC<{
+  cx: number;
+  cy: number;
+  frame: number;
+  delay: number;
+  color: string;
+  particleCount?: number;
+}> = ({ cx, cy, frame, delay, color, particleCount = 24 }) => {
+  const local = frame - delay;
+  if (local < 0) return null;
 
-/* ── idle.json sprite data (96x96) ── */
-const IDLE_DATA = [
-  "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000111111111111000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000116222222222222D11000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000116222226222222222222610000000000000000000000000000000000000",
-  "000000000000000000000000000000000011D22222222222222222222222100000000000000000000000000000000000",
-  "000000000000000000000000000000000172222222222222222222222222211000000000000000000000000000000000",
-  "000000000000000000000000000000001D22222222222222222222222222226100000000000000000000000000000000",
-  "00000000000000000000000000000001D222222262222222222D22222222210001000000000000000000000000000000",
-  "000000000000000000000000000000172222222262222222222222D2222210E000100000000000000000000000000000",
-  "0000000000000000000000000000017722226226222222222222222222228CC001110000000000000000000000000000",
-  "0000000000000000000000000000177777222221222222222222222222210C1CC1110000000000000000000000000000",
-  "0000000000000000000000000001777772272211222222221222222222261001CE010000000000000000000000000000",
-  "000000000000000000000000000177776227220622222222122222222622C16CCEC16100000000000000000000000000",
-  "000000000000000000000000001722722222217622222222112222222622160E1E130100000000000000000000000000",
-  "0000000000000000000000000012222222226AA6227222221811E1122222111101619400000000000000000000000000",
-  "0000000000000000000000000072222222211A0622222222111222261212606415169280000000000000000000000000",
-  "00000000000000000000000001222222121DA00122222222A0A222122262136311614400000000000000000000000000",
-  "000000000000000000000000012222221021800122222222808122122222219419199100000000000000000000000000",
-  "00000000000000000000000000222222226A000622122222A80812112221211113113640000000000000000000000000",
-  "000000000000000000000000E22422222210000062122222A000A4D862212222164D1731000000000000000000000000",
-  "000000000000000000000000122622222280000012112222880000081221222210322310000000000000000000000000",
-  "00000000000000000000000012122222210011100110122D081011110121222213312410000000000000000000000000",
-  "00000000000000000000000012162222D0010001001081620001000E1014222211112210000000000000000000000000",
-  "000000000000000000000000061122221010011100000001000011100101222221222260000000000000000000000000",
-  "0000000000000000000000000101222E00C0110000808008000100110AEC2222212222D0000000000000000000000000",
-  "000000000000000000000000010122210100110010800800000100110018222221222220000000000000000000000000",
-  "00000000000000000000000000001221010011111000000000011111101C2622D4422261000000000000000000000000",
-  "000000000000000000000000000021210100111110088000000111111011222221422221000000000000000000000000",
-  "0000000000000000000000000001221400001F11108000008001F11F10012222D8122221000000000000000000000000",
-  "0000000000000000000000000001224D100010FF100008000001FF0F0001222211122221000000000000000000000000",
-  "0000000000000000000000000001264410000FFF0000000800000FF1088122261A022226000000000000000000000000",
-  "0000000000000000000000000006244410800000000008800800000000012222AA062222000000000000000000000000",
-  "0000000000000000000000000002244D18888800000000000800008888062621A81D2122100000000000000000000000",
-  "0000000000000000000000000002244418888800000116A7710000888802222EA0442122100000000000000000000000",
-  "00000000000000000000001010062444188000000C667777770800888012626801442162E00000000000000000000000",
-  "000000000000000000000000101110141000000000277777770011001C122211D4462016000000000000000000000000",
-  "000000000000000000000010018110144E000000000777777A010E1C1162264444421011000000000000000000000000",
-  "000000000000000000001011080000444D10000000D777777101411001622D4414421011000000000000000000000000",
-  "000000000000000000000100E801081D1441000000017777100080011122144D14410010000000000000000000000000",
-  "00000000000000000000001000000014ED4411108800000000800119922144411D100000000000000000000000000000",
-  "0000000000000000000010080080001110141001111000080811619916114D1011000000000000000000000000000000",
-  "0000000000000000000001100000001100011013899911A77AA19999D779100000000000000000000000000000000000",
-  "00000000000000000000000C000081081100001322991A7A78199284B553210000000000000000000000000000000000",
-  "000000000000000000000000018E001153100101385518A81658855911C4910000000000000000000000000000000000",
-  "000000000000000000000000000018863561659101294001587541001119110000000000000000000000000000000000",
-  "00000000000000000000000000D70132533355B6C117A0E2791000415353612000000000000000000000000000000000",
-  "000000000000000000000000006143533531536336011111010199543554443400000000000000000000000000000000",
-  "000000000000000000000000019443555351631555511221195355543556311210000000000000000000000000000000",
-  "00000000000000000000000001953355535163935B376841455553545556443110000000000000000000000000000000",
-  "0000000000000000000000000E9533535559321413586741653533399555361534000000000000000000000000000000",
-  "00000000000000000000000000195333555591214A683534313333A21959233553100000000000000000000000000000",
-  "0000000000000000000000000001995BB35591113337305A544645691191113355210000000000000000000000000000",
-  "000000000000000000000000000001935599614316383030313131321043333533510000000000000000000000000000",
-  "000000000000000000000000000000199991061366305537533439121133553335910000000000000000000000000000",
-  "000000000000000000000000000000001100133535343338356444591135355553400000000000000000000000000000",
-  "000000000000000000000000000000000000194533611897353355591184355539100000000000000000000000000000",
-  "000000000000000000000000000000000000119933316437335553941018154539000000000000000000000000000000",
-  "000000000000000000000000000000000000441414949237692422108800A16994000000000000000000000000000000",
-  "00000000000000000000000000000000011A412251787776A74311818880072911000000000000000000000000000000",
-  "000000000000000000000000000000010091B11150260411171B9118188001C600000000000000000000000000000000",
-  "0000000000000000000000000000004A77741344A7030307307114018188110000000000000000000000000000000000",
-  "00000000000000000000000000000011B519031179177B39933251311816711000000000000000000000000000000000",
-  "00000000000000000000000000000013161135603770A3073B3761A6A139161000000000000000000000000000000000",
-  "0000000000000000000000000000100B2A6C1B303153BB761307977362B26931D0000000000000000000000000000000",
-  "000000000000000000000000000133733133913BB4111119197AB1619361943061000000000000000000000000000000",
-  "00000000000000000000000000001B501A0AB316319669A11B771A941133371334000000000000000000000000000000",
-  "0000000000000000000000000001A47133A7333961B66B34111393721990052191100000000000000000000000000000",
-  "0000000000000000000000000001001191BB00393A7003009993B0033C3A3211E0110000000000000000000000000000",
-  "00000000000000000000000000001101101930300BB33B3663003333BC5B310011351000000000000000000000000000",
-  "0000000000000000000000000000010000013BB31114111A4300BB311239800045303000000000000000000000000000",
-  "0000000000000000000000000000170690000143A1C600A41B33510001E0001337300100000000000000000000000000",
-  "0000000000000000000000000000170731110000000000C111110000C0011496063A7100000000000000000000000000",
-  "000000000000000000000000000001090A6921180000000001001A01A100132100701000000000000000000000000000",
-  "000000000000000000000000000000C1722A601AAAAA1E01168AAAAA0000067628100000000000000000000000000000",
-  "00000000000000000000000000000001619A1000AAAAAA0001AAA000011001A91A200000000000000000000000000000",
-  "000000000000000000000000000000011652100000000A000080000111B1012291110000000000000000000000000000",
-  "0000000000000000000000000000000143A9E02100000100001000015111006A23210000000000000000000000000000",
-  "0000000000000000000000000000000018AA002133333100000A93316343001A90100000000000000000000000000000",
-  "0000000000000000000000000000000001770011000000C0000100000511001711000000000000000000000000000000",
-  "0000000000000000000000000000000000010014000000A0000000000000000100000000000000000000000000000000",
-  "000000000000000000000000000000000000000100000000000010000001000000000000000000000000000000000000",
-  "00000000000000000000000000000000000000000000000000000D000015100000000000000000000000000000000000",
-  "000000000000000000000000000000000000000100100E10000001100154100000000000000000000000000000000000",
-  "00000000000000000000000000000000000000C125035B1000000405A110000000000000000000000000000000000000",
-  "000000000000000000000000000000000000001434B11010000001561411710000000000000000000000000000000000",
-  "000000000000000000000000000000000000001111B00A10000001216111110000000000000000000000000000000000",
-  "00000000000000000000000000000000000000461C103310000000014100020000000000000000000000000000000000",
-  "000000000000000000000000000000000000100C11E02310000004100100410000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000C0008C10000001000010300000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000012510000001000004100000000000000000000000000000000000",
-  "000000000000000000000000000000000000341113511000000001000461000000000000000000000000000000000000",
-  "000000000000000000000000000000000000011111000000000000433610000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-];
+  const burstDuration = 45;
+  const progress = Math.min(local / burstDuration, 1);
+  const fadeOut = interpolate(local, [burstDuration * 0.5, burstDuration], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
-/* ── Flood fill from edges to find background 0s ── */
-const buildSprite = (): (string | null)[][] => {
-  const grid = IDLE_DATA.map((row) => row.split(""));
-  const isBg: boolean[][] = Array.from({ length: SPRITE_H }, () => Array(SPRITE_W).fill(false));
+  if (fadeOut <= 0) return null;
 
-  // BFS from all edge "0" pixels
-  const queue: [number, number][] = [];
-  for (let y = 0; y < SPRITE_H; y++) {
-    for (let x = 0; x < SPRITE_W; x++) {
-      if ((y === 0 || y === SPRITE_H - 1 || x === 0 || x === SPRITE_W - 1) && grid[y][x] === "0") {
-        isBg[y][x] = true;
-        queue.push([y, x]);
-      }
-    }
-  }
-  while (queue.length > 0) {
-    const [cy, cx] = queue.shift()!;
-    for (const [dy, dx] of [[-1,0],[1,0],[0,-1],[0,1]]) {
-      const ny = cy + dy;
-      const nx = cx + dx;
-      if (ny >= 0 && ny < SPRITE_H && nx >= 0 && nx < SPRITE_W && !isBg[ny][nx] && grid[ny][nx] === "0") {
-        isBg[ny][nx] = true;
-        queue.push([ny, nx]);
-      }
-    }
-  }
+  return (
+    <>
+      {/* Center flash */}
+      {local < 8 && (
+        <div
+          style={{
+            position: "absolute",
+            left: cx - 30,
+            top: cy - 30,
+            width: 60,
+            height: 60,
+            borderRadius: "50%",
+            backgroundColor: "white",
+            opacity: interpolate(local, [0, 8], [1, 0]),
+            boxShadow: `0 0 40px 20px ${color}`,
+          }}
+        />
+      )}
+      {/* Particles */}
+      {Array.from({ length: particleCount }, (_, i) => {
+        const angle = (i / particleCount) * Math.PI * 2 + hash(i * 7, 100) * 0.01;
+        const speed = 80 + hash(i * 13, 60);
+        const dist = progress * speed;
+        const x = cx + Math.cos(angle) * dist;
+        const y = cy + Math.sin(angle) * dist + progress * progress * 30; // gravity
+        const size = interpolate(progress, [0, 0.3, 1], [4, 6, 2]);
+        const trailLen = interpolate(progress, [0, 0.5, 1], [0, 12, 4]);
 
-  return grid.map((row, y) =>
-    row.map((ch, x) => (isBg[y][x] ? null : PALETTE[ch] ?? null))
+        return (
+          <React.Fragment key={i}>
+            {/* Trail */}
+            <div
+              style={{
+                position: "absolute",
+                left: x - 1,
+                top: y - trailLen,
+                width: 2,
+                height: trailLen,
+                backgroundColor: color,
+                opacity: fadeOut * 0.5,
+                transform: `rotate(${(angle * 180) / Math.PI + 90}deg)`,
+                transformOrigin: "bottom center",
+              }}
+            />
+            {/* Particle */}
+            <div
+              style={{
+                position: "absolute",
+                left: x - size / 2,
+                top: y - size / 2,
+                width: size,
+                height: size,
+                borderRadius: "50%",
+                backgroundColor: i % 3 === 0 ? "white" : color,
+                opacity: fadeOut,
+                boxShadow: `0 0 ${size * 2}px ${color}`,
+              }}
+            />
+          </React.Fragment>
+        );
+      })}
+    </>
   );
 };
 
-const IDLE_SPRITE = buildSprite();
+/* ── Fireworks display ── */
+const FireworksDisplay: React.FC<{ frame: number }> = ({ frame }) => {
+  const fireworks = [
+    { cx: 960, cy: 300, delay: 5, color: "#fbbf24" },
+    { cx: 400, cy: 250, delay: 15, color: "#ec4899" },
+    { cx: 1500, cy: 280, delay: 25, color: "#06b6d4" },
+    { cx: 700, cy: 200, delay: 35, color: "#a78bfa" },
+    { cx: 1200, cy: 350, delay: 45, color: "#34d399" },
+    { cx: 300, cy: 400, delay: 55, color: "#f472b6" },
+    { cx: 1600, cy: 200, delay: 60, color: "#fbbf24" },
+    { cx: 960, cy: 150, delay: 70, color: "#ff6b6b" },
+    { cx: 500, cy: 350, delay: 80, color: "#06b6d4" },
+    { cx: 1400, cy: 300, delay: 85, color: "#a78bfa" },
+  ];
 
-/* ── Render a pixel sprite with dance animation ── */
-const PixelIdol: React.FC<{
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+      {fireworks.map((fw, i) => (
+        <Firework key={i} {...fw} frame={frame} />
+      ))}
+    </div>
+  );
+};
+
+/* ── Paint splash (single blob) ── */
+const PaintSplash: React.FC<{
   x: number;
   y: number;
   frame: number;
-  scale?: number;
-}> = ({ x, y, frame, scale = 1 }) => {
-  const px = PIXEL * scale;
+  delay: number;
+  color: string;
+  size: number;
+  angle: number;
+}> = ({ x, y, frame, delay, color, size, angle }) => {
+  const local = frame - delay;
+  if (local < 0) return null;
 
-  // Simple dance: sway left/right + bounce
-  const swayX = Math.sin(frame * 0.15) * 8 * scale;
-  const bounceY = Math.abs(Math.sin(frame * 0.2)) * -12 * scale;
-  // Slight tilt for dance feel
-  const tilt = Math.sin(frame * 0.15) * 3;
+  const expandDuration = 20;
+  const scale = interpolate(local, [0, expandDuration], [0, 1], {
+    extrapolateRight: "clamp",
+    easing: Easing.out(Easing.quad),
+  });
+
+  // Drip effect
+  const dripY = local > expandDuration
+    ? interpolate(local, [expandDuration, expandDuration + 40], [0, 30], { extrapolateRight: "clamp" })
+    : 0;
 
   return (
     <div
       style={{
         position: "absolute",
-        left: x + swayX,
-        top: y + bounceY,
-        imageRendering: "pixelated",
-        transform: `rotate(${tilt}deg)`,
-        transformOrigin: "center bottom",
+        left: x,
+        top: y,
+        transform: `rotate(${angle}deg) scale(${scale})`,
+        transformOrigin: "center center",
       }}
     >
-      {IDLE_SPRITE.map((row, ry) =>
-        row.map((color, rx) => {
-          if (!color) return null;
-          return (
-            <div
-              key={`${ry}-${rx}`}
-              style={{
-                position: "absolute",
-                left: rx * px,
-                top: ry * px,
-                width: px,
-                height: px,
-                backgroundColor: color,
-              }}
-            />
-          );
-        }),
+      {/* Main blob */}
+      <div
+        style={{
+          width: size,
+          height: size * 0.8,
+          borderRadius: "50% 50% 45% 55% / 60% 40% 55% 45%",
+          backgroundColor: color,
+          opacity: 0.9,
+        }}
+      />
+      {/* Drip */}
+      {dripY > 2 && (
+        <div
+          style={{
+            position: "absolute",
+            left: size * 0.4,
+            top: size * 0.6,
+            width: 8,
+            height: dripY,
+            borderRadius: "0 0 4px 4px",
+            backgroundColor: color,
+            opacity: 0.8,
+          }}
+        />
       )}
+      {/* Small splatter dots */}
+      {[
+        { dx: -size * 0.3, dy: -size * 0.2, s: size * 0.15 },
+        { dx: size * 0.9, dy: size * 0.1, s: size * 0.12 },
+        { dx: size * 0.2, dy: -size * 0.35, s: size * 0.1 },
+        { dx: size * 0.7, dy: size * 0.7, s: size * 0.08 },
+      ].map((dot, i) => (
+        <div
+          key={i}
+          style={{
+            position: "absolute",
+            left: dot.dx,
+            top: dot.dy,
+            width: dot.s,
+            height: dot.s,
+            borderRadius: "50%",
+            backgroundColor: color,
+            opacity: 0.85,
+          }}
+        />
+      ))}
     </div>
   );
 };
 
-/* ── Sparkles ── */
-const hash = (seed: number, mod: number) =>
-  ((seed * 7919 + 104729) % mod + mod) % mod;
+/* ── Paint flood that fills screen ── */
+const PaintFlood: React.FC<{ frame: number; startFrame: number }> = ({ frame, startFrame }) => {
+  const local = frame - startFrame;
+  if (local < 0) return null;
 
-const Sparkles: React.FC<{ frame: number; count: number }> = ({ frame, count }) => (
-  <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-    {Array.from({ length: count }, (_, i) => {
-      const x = hash(i * 3, 1920);
-      const y = hash(i * 7, 900);
-      const period = hash(i * 11, 20) + 15;
-      const phase = hash(i * 13, 40);
-      const size = hash(i * 17, 4) + 3;
-      const t = (frame + phase) % period;
-      const opacity = interpolate(t, [0, period / 3, period], [0, 1, 0]);
-      const colors = ["#fbbf24", "#ec4899", "#8b5cf6", "#06b6d4", "#fff", "#34d399"];
-      const color = colors[i % colors.length];
-      const rotation = interpolate(frame + phase, [0, 60], [0, 360], { extrapolateRight: "extend" });
-      return (
-        <div key={i} style={{
-          position: "absolute", left: x, top: y,
-          width: size * 2, height: size * 2, opacity,
-          transform: `rotate(${rotation}deg)`,
-        }}>
-          <div style={{
-            position: "absolute", left: "50%", top: 0, width: 2, height: "100%",
-            backgroundColor: color, transform: "translateX(-50%)",
-          }} />
-          <div style={{
-            position: "absolute", top: "50%", left: 0, width: "100%", height: 2,
-            backgroundColor: color, transform: "translateY(-50%)",
-          }} />
-        </div>
-      );
-    })}
-  </div>
-);
+  const splashes = [
+    { x: 200, y: 100, delay: 0, color: "#ec4899", size: 250, angle: -10 },
+    { x: 1400, y: 200, delay: 5, color: "#8b5cf6", size: 280, angle: 15 },
+    { x: 800, y: 50, delay: 10, color: "#06b6d4", size: 300, angle: -5 },
+    { x: 100, y: 500, delay: 14, color: "#fbbf24", size: 260, angle: 20 },
+    { x: 1600, y: 600, delay: 18, color: "#f43f5e", size: 290, angle: -15 },
+    { x: 500, y: 400, delay: 22, color: "#34d399", size: 270, angle: 8 },
+    { x: 1100, y: 300, delay: 26, color: "#a78bfa", size: 310, angle: -20 },
+    { x: 300, y: 700, delay: 30, color: "#06b6d4", size: 240, angle: 12 },
+    { x: 1300, y: 500, delay: 34, color: "#ec4899", size: 280, angle: -8 },
+    { x: 700, y: 650, delay: 38, color: "#fbbf24", size: 260, angle: 5 },
+    { x: 960, y: 540, delay: 42, color: "#8b5cf6", size: 350, angle: 0 },
+    { x: 1700, y: 400, delay: 46, color: "#f43f5e", size: 230, angle: -12 },
+    { x: 150, y: 300, delay: 50, color: "#34d399", size: 270, angle: 18 },
+    { x: 1500, y: 100, delay: 54, color: "#a78bfa", size: 290, angle: -7 },
+    { x: 600, y: 200, delay: 58, color: "#fbbf24", size: 320, angle: 10 },
+  ];
 
-/* ── Stage floor ── */
-const PixelStage: React.FC = () => (
-  <div style={{
-    position: "absolute", bottom: 0, left: 0, right: 0, height: 200,
-    background: "linear-gradient(to top, #1a0a3e 0%, #2d1854 60%, transparent 100%)",
-  }}>
-    {Array.from({ length: 20 }, (_, i) => (
-      <div key={i} style={{
-        position: "absolute", bottom: 0, left: `${i * 5}%`, width: "5%", height: 40,
-        backgroundColor: i % 2 === 0 ? "rgba(139,92,246,0.3)" : "rgba(6,182,212,0.2)",
-      }} />
-    ))}
-  </div>
-);
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+      {splashes.map((sp, i) => (
+        <PaintSplash key={i} {...sp} frame={local} />
+      ))}
+    </div>
+  );
+};
 
 /* ── Chorus2Scene ── */
 export const Chorus2Scene: React.FC<{
@@ -267,33 +250,18 @@ export const Chorus2Scene: React.FC<{
 
   const bgAngle = interpolate(frame, [0, 600], [120, 480]);
 
-  // Idol center position (48px * 4px * 4scale = 768px wide)
-  const idolScale = 4;
-  const idolW = SPRITE_W * PIXEL * idolScale;
-  const idolX = (1920 - idolW) / 2;
-  const idolH = SPRITE_H * PIXEL * idolScale;
-  const idolY = 1080 - 200 - idolH - 40; // above stage floor
-
   return (
     <AbsoluteFill style={{ fontFamily }}>
-      <AbsoluteFill style={{ background: `linear-gradient(${bgAngle}deg, #1a0533, #2d1854, #0c2461)` }} />
+      {/* Background */}
+      <AbsoluteFill
+        style={{ background: `linear-gradient(${bgAngle}deg, #0a0020, #1a0a3e, #0c1445)` }}
+      />
 
-      {/* Spotlight */}
-      <div style={{
-        position: "absolute", top: 0, left: "50%",
-        width: 0, height: 0, transform: "translateX(-50%)",
-        borderLeft: "200px solid transparent",
-        borderRight: "200px solid transparent",
-        borderTop: "800px solid rgba(139,92,246,0.08)",
-        filter: "blur(8px)",
-      }} />
+      {/* Fireworks (ぱちぱち光る まほうみたい) */}
+      <FireworksDisplay frame={frame} />
 
-      <PixelStage />
-
-      {/* Single idol */}
-      <PixelIdol x={idolX} y={idolY} frame={frame} scale={idolScale} />
-
-      <Sparkles frame={frame} count={40} />
+      {/* Paint flood (世界を染める ポップサイン) */}
+      <PaintFlood frame={frame} startFrame={lineDelays[1]} />
 
       {/* Lyrics */}
       <div style={{
@@ -310,8 +278,9 @@ export const Chorus2Scene: React.FC<{
         })}
       </div>
 
+      {/* Vignette */}
       <AbsoluteFill style={{
-        background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%)",
+        background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4) 100%)",
         pointerEvents: "none",
       }} />
     </AbsoluteFill>
