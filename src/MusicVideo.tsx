@@ -6,6 +6,7 @@ import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
 import { LyricSection } from "./LyricSection";
 import { TitleCard } from "./TitleCard";
+import { ShootingStars } from "./ShootingStars";
 
 const FPS = 30;
 const TRANSITION = 20;
@@ -16,7 +17,8 @@ const TRANSITION = 20;
 // TransitionSeries duration formula:
 //   section_duration = (next_start - this_start) * FPS + TRANSITION
 //   last_section_duration = (end - this_start) * FPS
-const PRELUDE = 6 * FPS + TRANSITION; // 200 (0-6s)
+const SHOOTING_STAR_OVERLAY = 30;
+const PRELUDE = 6 * FPS; // 180 (0-6s) — overlay doesn't shorten timeline
 const INTRO = 11 * FPS + TRANSITION; // 350 (7-18s)
 const VERSE = 11 * FPS + TRANSITION; // 350 (18-29s)
 const PRECHORUS = 13 * FPS + TRANSITION; // 410 (29-42s)
@@ -24,7 +26,7 @@ const CHORUS1 = 9 * FPS + TRANSITION; // 290 (42-51s)
 const CHORUS2 = 9 * FPS; // 270 (51-60s)
 
 export const MUSIC_VIDEO_DURATION =
-  PRELUDE + INTRO + VERSE + PRECHORUS + CHORUS1 + CHORUS2 - 5 * TRANSITION;
+  PRELUDE + INTRO + VERSE + PRECHORUS + CHORUS1 + CHORUS2 - 4 * TRANSITION;
 
 export const MusicVideo: React.FC = () => {
   return (
@@ -36,10 +38,9 @@ export const MusicVideo: React.FC = () => {
           <TitleCard />
         </TransitionSeries.Sequence>
 
-        <TransitionSeries.Transition
-          presentation={fade()}
-          timing={linearTiming({ durationInFrames: TRANSITION })}
-        />
+        <TransitionSeries.Overlay durationInFrames={SHOOTING_STAR_OVERLAY}>
+          <ShootingStars />
+        </TransitionSeries.Overlay>
 
         {/* INTRO 7-18s */}
         <TransitionSeries.Sequence durationInFrames={INTRO}>
