@@ -10,6 +10,7 @@ import { ShootingStars } from "./ShootingStars";
 import { IntroScene } from "./IntroScene";
 import { VerseScene } from "./VerseScene";
 import { zoom } from "./ZoomTransition";
+import { noteTransition } from "./NoteTransition";
 
 const FPS = 30;
 const TRANSITION = 20;
@@ -23,13 +24,15 @@ const TRANSITION = 20;
 const SHOOTING_STAR_OVERLAY = 30;
 const PRELUDE = 6 * FPS; // 180 (0-6s) — overlay doesn't shorten timeline
 const INTRO = 11 * FPS + TRANSITION; // 350 (7-18s)
-const VERSE = 11 * FPS + TRANSITION; // 350 (18-29s)
+const NOTE_TRANSITION = 25;
+const VERSE = 11 * FPS + NOTE_TRANSITION; // 355 (18-29s)
 const PRECHORUS = 13 * FPS + TRANSITION; // 410 (29-42s)
 const CHORUS1 = 9 * FPS + TRANSITION; // 290 (42-51s)
 const CHORUS2 = 9 * FPS; // 270 (51-60s)
 
 export const MUSIC_VIDEO_DURATION =
-  PRELUDE + INTRO + VERSE + PRECHORUS + CHORUS1 + CHORUS2 - 4 * TRANSITION;
+  PRELUDE + INTRO + VERSE + PRECHORUS + CHORUS1 + CHORUS2 -
+  TRANSITION - NOTE_TRANSITION - TRANSITION - TRANSITION;
 
 export const MusicVideo: React.FC = () => {
   return (
@@ -76,8 +79,8 @@ export const MusicVideo: React.FC = () => {
         </TransitionSeries.Sequence>
 
         <TransitionSeries.Transition
-          presentation={slide({ direction: "from-bottom" })}
-          timing={linearTiming({ durationInFrames: TRANSITION })}
+          presentation={noteTransition()}
+          timing={linearTiming({ durationInFrames: 25 })}
         />
 
         {/* PRE-CHORUS 29-42s */}

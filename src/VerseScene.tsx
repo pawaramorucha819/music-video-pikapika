@@ -91,8 +91,8 @@ export const VerseScene: React.FC<{
   // Line 0: "しゅわしゅわソーダ…"  → immediate (frame 5)
   // Line 1: "パステル信号…"        → 20.15s = frame 65
   // Line 2: "ドキドキしちゃう…"    → ~23s = frame 150
-  // Line 3: "リズムにのって…"      → 25.22s = frame 217
-  const lineDelays = [5, 65, 150, 217];
+  // Line 3: "リズムにのって…"      → frame 263
+  const lineDelays = [5, 65, 150, 263];
 
   // --- Tilt: soda glass → sky ---
   // Tilt starts around frame 50, completes by frame 80
@@ -242,8 +242,6 @@ export const VerseScene: React.FC<{
           const delay = lineDelays[i] ?? 0;
           const endDelay =
             i < lines.length - 1 ? lineDelays[i + 1] : undefined;
-          // Text color: dark while in soda, white after sky
-          const inSky = frame > TILT_END;
           return (
             <LyricLine
               key={i}
@@ -251,12 +249,8 @@ export const VerseScene: React.FC<{
               delay={delay}
               endDelay={endDelay}
               fontSize={fontSize}
-              color={inSky ? "white" : "rgba(30,60,120,0.9)"}
-              glowColor={
-                inSky
-                  ? "rgba(100,180,255,0.5)"
-                  : "rgba(100,180,255,0.3)"
-              }
+              color="rgba(30,60,120,0.9)"
+              glowColor="rgba(100,180,255,0.3)"
             />
           );
         })}
