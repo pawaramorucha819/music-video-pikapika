@@ -72,7 +72,6 @@ export const MusicVideo: React.FC = () => {
               "ドキドキしちゃう　未来の合図",
               "リズムにのって　ぜんぶ変わるよ",
             ]}
-            lineInterval={60}
           />
         </TransitionSeries.Sequence>
 
