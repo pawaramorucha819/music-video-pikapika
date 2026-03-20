@@ -96,7 +96,7 @@ export const MusicVideo: React.FC = () => {
             bgColors={["#f59e0b", "#ef4444", "#ec4899"]}
             particleColor="rgba(253,230,138,0.7)"
             glowColor="rgba(239,68,68,0.6)"
-            lineInterval={70}
+            lineInterval={97}
           />
         </TransitionSeries.Sequence>
 
