@@ -76,9 +76,10 @@ const NoteFlood: React.FC<{ progress: number }> = ({ progress }) => {
   );
 };
 
-/** Lens flare wipe — the flare IS the wipe boundary */
+/** Lens flare wipe — sweeps RIGHT to LEFT to match note flow */
 const LensFlareWipe: React.FC<{ progress: number }> = ({ progress }) => {
-  const flareX = interpolate(progress, [0.05, 0.95], [-20, 120], {
+  // Right to left: 120% → -20%
+  const flareX = interpolate(progress, [0.05, 0.95], [120, -20], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.quad),
@@ -86,62 +87,104 @@ const LensFlareWipe: React.FC<{ progress: number }> = ({ progress }) => {
 
   const intensity = interpolate(
     progress,
-    [0, 0.15, 0.5, 0.85, 1],
-    [0, 0.7, 1, 0.7, 0],
+    [0, 0.1, 0.4, 0.6, 0.9, 1],
+    [0, 0.6, 1, 1, 0.6, 0],
     { extrapolateRight: "clamp" },
   );
 
   return (
     <AbsoluteFill style={{ pointerEvents: "none", overflow: "hidden" }}>
-      {/* Wide bright flare glow at wipe edge */}
+      {/* Blinding white-out at peak */}
+      <AbsoluteFill
+        style={{
+          backgroundColor: `rgba(255,255,255,${0.5 * intensity})`,
+        }}
+      />
+
+      {/* Main flare — very large, intense white core */}
       <div
         style={{
           position: "absolute",
           left: `${flareX}%`,
           top: "50%",
-          width: 900,
-          height: 1200,
+          width: 1400,
+          height: 1400,
           borderRadius: "50%",
           background: `radial-gradient(ellipse,
-            rgba(255,255,255,${0.95 * intensity}) 0%,
-            rgba(255,250,220,${0.7 * intensity}) 15%,
-            rgba(255,220,150,${0.4 * intensity}) 35%,
-            rgba(255,180,100,${0.15 * intensity}) 55%,
-            transparent 75%)`,
+            rgba(255,255,255,${1.0 * intensity}) 0%,
+            rgba(255,255,240,${0.85 * intensity}) 10%,
+            rgba(255,240,200,${0.6 * intensity}) 25%,
+            rgba(255,200,120,${0.3 * intensity}) 45%,
+            rgba(255,160,80,${0.1 * intensity}) 65%,
+            transparent 80%)`,
           transform: "translate(-50%, -50%)",
         }}
       />
 
-      {/* Horizontal light streak */}
+      {/* Wide horizontal streak across entire screen */}
       <div
         style={{
           position: "absolute",
           left: 0,
           right: 0,
-          top: "47%",
-          height: 12,
+          top: "46%",
+          height: 20,
           background: `linear-gradient(90deg,
-            transparent ${Math.max(flareX - 25, 0)}%,
-            rgba(255,240,200,${0.5 * intensity}) ${flareX - 10}%,
-            rgba(255,255,255,${0.9 * intensity}) ${flareX}%,
-            rgba(255,240,200,${0.5 * intensity}) ${flareX + 10}%,
-            transparent ${Math.min(flareX + 25, 100)}%)`,
-          filter: "blur(3px)",
+            transparent ${Math.max(flareX - 40, 0)}%,
+            rgba(255,240,200,${0.6 * intensity}) ${flareX - 15}%,
+            rgba(255,255,255,${1.0 * intensity}) ${flareX}%,
+            rgba(255,240,200,${0.6 * intensity}) ${flareX + 15}%,
+            transparent ${Math.min(flareX + 40, 100)}%)`,
+          filter: "blur(4px)",
         }}
       />
 
-      {/* Secondary flare ring */}
+      {/* Thin secondary streak */}
       <div
         style={{
           position: "absolute",
-          left: `${flareX + 6}%`,
-          top: "42%",
-          width: 120,
-          height: 120,
+          left: 0,
+          right: 0,
+          top: "52%",
+          height: 6,
+          background: `linear-gradient(90deg,
+            transparent ${Math.max(flareX - 30, 0)}%,
+            rgba(255,220,180,${0.4 * intensity}) ${flareX - 8}%,
+            rgba(255,255,240,${0.7 * intensity}) ${flareX}%,
+            rgba(255,220,180,${0.4 * intensity}) ${flareX + 8}%,
+            transparent ${Math.min(flareX + 30, 100)}%)`,
+          filter: "blur(2px)",
+        }}
+      />
+
+      {/* Flare ring ghost */}
+      <div
+        style={{
+          position: "absolute",
+          left: `${flareX - 8}%`,
+          top: "40%",
+          width: 160,
+          height: 160,
           borderRadius: "50%",
-          border: `2px solid rgba(255,230,180,${0.3 * intensity})`,
+          border: `3px solid rgba(255,230,180,${0.35 * intensity})`,
           background: `radial-gradient(circle,
-            rgba(255,220,170,${0.15 * intensity}) 0%,
+            rgba(255,240,200,${0.2 * intensity}) 0%,
+            transparent 60%)`,
+          transform: "translate(-50%, -50%)",
+        }}
+      />
+
+      {/* Second ghost ring */}
+      <div
+        style={{
+          position: "absolute",
+          left: `${flareX + 12}%`,
+          top: "58%",
+          width: 80,
+          height: 80,
+          borderRadius: "50%",
+          background: `radial-gradient(circle,
+            rgba(255,200,150,${0.25 * intensity}) 0%,
             transparent 70%)`,
           transform: "translate(-50%, -50%)",
         }}
@@ -157,11 +200,11 @@ const NoteTransitionComponent: React.FC<{
 }> = ({ children, presentationDirection, presentationProgress }) => {
   const isExiting = presentationDirection === "exiting";
 
-  // Lens flare wipe: clip the scenes at the flare boundary
+  // Lens flare wipe RIGHT→LEFT: clip the scenes at the flare boundary
   const wipePos = interpolate(
     presentationProgress,
     [0.05, 0.95],
-    [0, 100],
+    [100, 0],
     {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
@@ -169,11 +212,11 @@ const NoteTransitionComponent: React.FC<{
     },
   );
 
-  // Exiting scene: visible on the RIGHT side of the wipe (shrinks to nothing)
-  // Entering scene: visible on the LEFT side of the wipe (grows to full)
+  // Wipe right→left: exiting shrinks from right, entering reveals from right
+  // inset(top right bottom left)
   const clipPath = isExiting
-    ? `inset(0 0 0 ${wipePos}%)`
-    : `inset(0 ${100 - wipePos}% 0 0)`;
+    ? `inset(0 ${100 - wipePos}% 0 0)`
+    : `inset(0 0 0 ${wipePos}%)`;
 
   return (
     <AbsoluteFill>
