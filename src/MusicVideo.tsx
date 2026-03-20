@@ -7,6 +7,7 @@ import { slide } from "@remotion/transitions/slide";
 import { LyricSection } from "./LyricSection";
 import { TitleCard } from "./TitleCard";
 import { ShootingStars } from "./ShootingStars";
+import { IntroScene } from "./IntroScene";
 
 const FPS = 30;
 const TRANSITION = 20;
@@ -42,20 +43,16 @@ export const MusicVideo: React.FC = () => {
           <ShootingStars />
         </TransitionSeries.Overlay>
 
-        {/* INTRO 7-18s */}
+        {/* INTRO 6-18s: ライブ会場チルト → 歌詞 */}
         <TransitionSeries.Sequence durationInFrames={INTRO}>
-          <LyricSection
+          <IntroScene
             lines={[
               "ピカピカ光る　夢のステージで",
               "くるくる回る　ハートのノイズ",
               "ほら始まるよ　ミラクルモーション",
               "キミとわたしで　いま飛びこもう！",
             ]}
-            sectionLabel="INTRO"
-            bgColors={["#7c3aed", "#ec4899", "#f43f5e"]}
-            particleColor="rgba(255,182,255,0.7)"
             glowColor="rgba(236,72,153,0.6)"
-            lineInterval={60}
           />
         </TransitionSeries.Sequence>
 
