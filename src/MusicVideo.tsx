@@ -5,6 +5,7 @@ import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
 import { LyricSection } from "./LyricSection";
+import { TitleCard } from "./TitleCard";
 
 const FPS = 30;
 const TRANSITION = 20;
@@ -32,15 +33,7 @@ export const MusicVideo: React.FC = () => {
       <TransitionSeries>
         {/* 前奏 0-6s */}
         <TransitionSeries.Sequence durationInFrames={PRELUDE}>
-          <LyricSection
-            lines={["ピカピカ光る夢のステージで"]}
-            sectionLabel=""
-            bgColors={["#1e1b4b", "#4c1d95", "#7c3aed"]}
-            particleColor="rgba(196,157,255,0.5)"
-            glowColor="rgba(124,58,237,0.6)"
-            lineInterval={0}
-            fontSize={72}
-          />
+          <TitleCard />
         </TransitionSeries.Sequence>
 
         <TransitionSeries.Transition
