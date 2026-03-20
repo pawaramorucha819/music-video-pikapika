@@ -236,6 +236,79 @@ const BigTv: React.FC<{
   );
 };
 
+/* ── Music notes flooding from TV ── */
+const NOTE_SYMBOLS = ["♪", "♫", "♬", "♩"];
+const NOTE_COLORS = ["#fbbf24", "#ec4899", "#06b6d4", "#a78bfa", "#34d399", "#f472b6", "#22d3ee", "#fde68a"];
+
+const MusicNoteFlood: React.FC<{
+  frame: number;
+  startFrame: number;
+}> = ({ frame, startFrame }) => {
+  const localFrame = frame - startFrame;
+  if (localFrame < 0) return null;
+
+  const noteCount = 50;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+      }}
+    >
+      {Array.from({ length: noteCount }, (_, i) => {
+        // Stagger note appearance
+        const delay = hash(i * 7, 30);
+        const noteLocal = localFrame - delay;
+        if (noteLocal < 0) return null;
+
+        // Each note flies outward from TV position
+        const angle = hash(i * 13, 360);
+        const rad = (angle * Math.PI) / 180;
+        const speed = 2.5 + hash(i * 17, 20) / 10;
+        const dist = noteLocal * speed;
+        // TV screen position in % (TV_CX=1050/1920, TV_CY=500/1080)
+        const originX = (TV_CX / 1920) * 100;
+        const originY = (TV_CY / 1080) * 100;
+        const x = originX + Math.cos(rad) * dist * 0.05;
+        const y = originY + Math.sin(rad) * dist * 0.04;
+
+        // Fade in then stay, slight wave
+        const opacity = interpolate(noteLocal, [delay, delay + 10, delay + 80, delay + 120], [0, 0.9, 0.7, 0], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
+        if (opacity <= 0) return null;
+
+        const size = 18 + hash(i * 19, 24);
+        const rotation = Math.sin((noteLocal + hash(i * 23, 50)) * 0.06) * 30;
+        const color = NOTE_COLORS[i % NOTE_COLORS.length];
+        const symbol = NOTE_SYMBOLS[i % NOTE_SYMBOLS.length];
+
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: `${x}%`,
+              top: `${y}%`,
+              fontSize: size,
+              color,
+              opacity,
+              transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+              textShadow: `0 0 10px ${color}, 0 0 20px ${color}80`,
+            }}
+          >
+            {symbol}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 /* ── Chorus1Scene ── */
 export const Chorus1Scene: React.FC<{
   lines: string[];
@@ -300,6 +373,9 @@ export const Chorus1Scene: React.FC<{
       </svg>
 
       <Particles count={15} color="rgba(251,191,36,0.4)" />
+
+      {/* Music notes flooding from TV at "きらめくメロディ むげん大" */}
+      <MusicNoteFlood frame={frame} startFrame={lineDelays[2]} />
 
       {/* Lyrics */}
       <div style={{
