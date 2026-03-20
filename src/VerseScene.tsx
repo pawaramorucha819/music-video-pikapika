@@ -104,9 +104,9 @@ export const VerseScene: React.FC<{
     easing: Easing.inOut(Easing.quad),
   });
 
-  // Virtual canvas: bottom = soda, top = sky
-  // tiltY: 0% = showing soda (bottom), 50% = showing sky (top)
-  const tiltY = interpolate(tiltProgress, [0, 1], [0, 50]);
+  // Virtual canvas: top = sky, bottom = soda
+  // Start showing soda (translateY -50%), tilt up to sky (translateY 0%)
+  const tiltY = interpolate(tiltProgress, [0, 1], [50, 0]);
 
   // Slight zoom change during tilt
   const tiltScale = interpolate(tiltProgress, [0, 1], [1.1, 1.0], {
