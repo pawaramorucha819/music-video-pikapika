@@ -134,7 +134,7 @@ export const MusicVideo: React.FC = () => {
             bgColors={["#8b5cf6", "#06b6d4", "#10b981"]}
             particleColor="rgba(255,255,255,0.8)"
             glowColor="rgba(139,92,246,0.7)"
-            lineDelays={[45, 109, 180, 240]}
+            lineDelays={[45, 109, 201, 285]}
             fontSize={60}
           />
         </TransitionSeries.Sequence>
