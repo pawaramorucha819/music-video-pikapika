@@ -31,7 +31,7 @@ const VERSE = 11 * FPS + NOTE_TRANSITION; // 365 (18-29s)
 const DIP_TO_WHITE = 70;
 const PRECHORUS = 13 * FPS + DIP_TO_WHITE; // 460 (29-42s)
 const CHORUS1 = Math.round(11.5 * FPS) + TRANSITION; // 365 (42-53.5s)
-const CHORUS2 = Math.round(6.5 * FPS); // 195 (53.5-60s)
+const CHORUS2 = 315; // (53.5-63s) 尺を63秒まで延長
 
 export const MUSIC_VIDEO_DURATION =
   PRELUDE + INTRO + VERSE + PRECHORUS + CHORUS1 + CHORUS2 -
@@ -134,7 +134,7 @@ export const MusicVideo: React.FC = () => {
             bgColors={["#8b5cf6", "#06b6d4", "#10b981"]}
             particleColor="rgba(255,255,255,0.8)"
             glowColor="rgba(139,92,246,0.7)"
-            lineInterval={48}
+            lineDelays={[45, 109, 180, 240]}
             fontSize={60}
           />
         </TransitionSeries.Sequence>
