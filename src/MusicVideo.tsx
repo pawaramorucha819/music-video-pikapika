@@ -145,9 +145,9 @@ export const MusicVideo: React.FC = () => {
       </TransitionSeries>
 
       {/* Light leak overlay: absolute frames 1110-1261 (PRE-CHORUS〜CHORUS冒頭) */}
-      <Sequence from={1110} durationInFrames={1261 - 1110} layout="none">
+      <Sequence from={1110} durationInFrames={1271 - 1110} layout="none">
         <AbsoluteFill>
-          <LightLeak seed={3} hueShift={30} durationInFrames={(1261 - 1110) * 3} />
+          <LightLeak seed={3} hueShift={30} durationInFrames={(1271 - 1110) * 3} />
         </AbsoluteFill>
       </Sequence>
     </>
