@@ -8,6 +8,7 @@ import { LyricSection } from "./LyricSection";
 import { TitleCard } from "./TitleCard";
 import { ShootingStars } from "./ShootingStars";
 import { IntroScene } from "./IntroScene";
+import { VerseScene } from "./VerseScene";
 import { zoom } from "./ZoomTransition";
 
 const FPS = 30;
@@ -64,17 +65,13 @@ export const MusicVideo: React.FC = () => {
 
         {/* VERSE 1 18-29s */}
         <TransitionSeries.Sequence durationInFrames={VERSE}>
-          <LyricSection
+          <VerseScene
             lines={[
               "しゅわしゅわソーダみたいな気分で",
               "パステル信号　空へはじけた",
               "ドキドキしちゃう　未来の合図",
               "リズムにのって　ぜんぶ変わるよ",
             ]}
-            sectionLabel="VERSE 1"
-            bgColors={["#0ea5e9", "#6366f1", "#a855f7"]}
-            particleColor="rgba(186,230,253,0.7)"
-            glowColor="rgba(99,102,241,0.6)"
             lineInterval={60}
           />
         </TransitionSeries.Sequence>
