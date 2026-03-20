@@ -227,8 +227,8 @@ export const VerseScene: React.FC<{
         />
       )}
 
-      {/* Flowing notes — start from "リズムにのって" (frame 255) */}
-      <FlowingNotes enterFrame={255} count={50} />
+      {/* Flowing notes — start before "リズムにのって" (frame 230) */}
+      <FlowingNotes enterFrame={230} count={70} />
 
       {/* --- Lyrics: one line at a time, bottom of screen --- */}
       <div

@@ -13,25 +13,27 @@ const NOTE_COLORS = [
   "#8b5cf6",
   "#14b8a6",
   "#f97316",
+  "#f472b6",
+  "#818cf8",
 ];
 
 const hash = (seed: number, mod: number) =>
   ((seed * 7919 + 104729) % mod + mod) % mod;
 
-/** Notes flowing right to left during the transition */
-const TransitionNotes: React.FC<{ progress: number }> = ({ progress }) => {
-  const count = 50;
+/** Massive notes flooding right to left, covering the screen */
+const NoteFlood: React.FC<{ progress: number }> = ({ progress }) => {
+  const count = 120;
   return (
     <AbsoluteFill style={{ overflow: "hidden", pointerEvents: "none" }}>
       {Array.from({ length: count }, (_, i) => {
-        const y = hash(i * 7 + 1, 90) + 5;
-        const size = hash(i * 11 + 2, 28) + 24;
-        const speed = hash(i * 13 + 3, 40) + 60;
-        const startOffset = hash(i * 17 + 4, 30);
-        const rotation = hash(i * 19 + 5, 30) - 15;
+        const y = hash(i * 7 + 1, 100);
+        const size = hash(i * 11 + 2, 36) + 22;
+        const speed = hash(i * 13 + 3, 35) + 45;
+        const startOffset = hash(i * 17 + 4, 50);
+        const rotation = hash(i * 19 + 5, 40) - 20;
         const note = NOTES[hash(i * 23 + 6, NOTES.length)];
         const color = NOTE_COLORS[hash(i * 29 + 7, NOTE_COLORS.length)];
-        const bounceAmp = hash(i * 31 + 8, 15) + 8;
+        const bounceAmp = hash(i * 31 + 8, 18) + 6;
 
         const noteProgress = interpolate(
           progress * 100,
@@ -40,14 +42,16 @@ const TransitionNotes: React.FC<{ progress: number }> = ({ progress }) => {
           { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
         );
 
-        const x = interpolate(noteProgress, [0, 1], [115, -15]);
+        if (noteProgress <= 0) return null;
+
+        const x = interpolate(noteProgress, [0, 1], [120, -20]);
         const opacity = interpolate(
           noteProgress,
-          [0, 0.05, 0.85, 1],
+          [0, 0.03, 0.9, 1],
           [0, 1, 1, 0],
           { extrapolateRight: "clamp" },
         );
-        const bounce = Math.sin(noteProgress * Math.PI * 2.5) * bounceAmp;
+        const bounce = Math.sin(noteProgress * Math.PI * 2) * bounceAmp;
 
         return (
           <div
@@ -60,7 +64,7 @@ const TransitionNotes: React.FC<{ progress: number }> = ({ progress }) => {
               color,
               opacity,
               transform: `rotate(${rotation}deg)`,
-              textShadow: `0 0 12px ${color}80, 0 0 24px ${color}40`,
+              textShadow: `0 0 14px ${color}, 0 0 28px ${color}60`,
               fontWeight: "bold",
             }}
           >
@@ -72,80 +76,74 @@ const TransitionNotes: React.FC<{ progress: number }> = ({ progress }) => {
   );
 };
 
-/** Lens flare wipe — warm glow sweeps across the screen */
+/** Lens flare wipe — the flare IS the wipe boundary */
 const LensFlareWipe: React.FC<{ progress: number }> = ({ progress }) => {
-  // Flare sweeps from left to right
-  const flareX = interpolate(progress, [0, 1], [-30, 130], {
+  const flareX = interpolate(progress, [0.05, 0.95], [-20, 120], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.quad),
   });
 
-  // Intensity peaks at midpoint
   const intensity = interpolate(
     progress,
-    [0, 0.3, 0.5, 0.7, 1],
-    [0, 0.4, 1, 0.4, 0],
+    [0, 0.15, 0.5, 0.85, 1],
+    [0, 0.7, 1, 0.7, 0],
     { extrapolateRight: "clamp" },
   );
 
   return (
     <AbsoluteFill style={{ pointerEvents: "none", overflow: "hidden" }}>
-      {/* Main flare glow */}
+      {/* Wide bright flare glow at wipe edge */}
       <div
         style={{
           position: "absolute",
           left: `${flareX}%`,
           top: "50%",
-          width: 600,
-          height: 600,
+          width: 900,
+          height: 1200,
           borderRadius: "50%",
+          background: `radial-gradient(ellipse,
+            rgba(255,255,255,${0.95 * intensity}) 0%,
+            rgba(255,250,220,${0.7 * intensity}) 15%,
+            rgba(255,220,150,${0.4 * intensity}) 35%,
+            rgba(255,180,100,${0.15 * intensity}) 55%,
+            transparent 75%)`,
+          transform: "translate(-50%, -50%)",
+        }}
+      />
+
+      {/* Horizontal light streak */}
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: "47%",
+          height: 12,
+          background: `linear-gradient(90deg,
+            transparent ${Math.max(flareX - 25, 0)}%,
+            rgba(255,240,200,${0.5 * intensity}) ${flareX - 10}%,
+            rgba(255,255,255,${0.9 * intensity}) ${flareX}%,
+            rgba(255,240,200,${0.5 * intensity}) ${flareX + 10}%,
+            transparent ${Math.min(flareX + 25, 100)}%)`,
+          filter: "blur(3px)",
+        }}
+      />
+
+      {/* Secondary flare ring */}
+      <div
+        style={{
+          position: "absolute",
+          left: `${flareX + 6}%`,
+          top: "42%",
+          width: 120,
+          height: 120,
+          borderRadius: "50%",
+          border: `2px solid rgba(255,230,180,${0.3 * intensity})`,
           background: `radial-gradient(circle,
-            rgba(255,250,220,${0.9 * intensity}) 0%,
-            rgba(255,220,150,${0.5 * intensity}) 25%,
-            rgba(255,180,100,${0.2 * intensity}) 50%,
+            rgba(255,220,170,${0.15 * intensity}) 0%,
             transparent 70%)`,
           transform: "translate(-50%, -50%)",
-        }}
-      />
-
-      {/* Horizontal flare streak */}
-      <div
-        style={{
-          position: "absolute",
-          left: `${flareX - 20}%`,
-          top: "48%",
-          width: "40%",
-          height: 8,
-          background: `linear-gradient(90deg,
-            transparent,
-            rgba(255,240,200,${0.6 * intensity}),
-            rgba(255,255,255,${0.8 * intensity}),
-            rgba(255,240,200,${0.6 * intensity}),
-            transparent)`,
-          borderRadius: 4,
-          filter: `blur(4px)`,
-        }}
-      />
-
-      {/* Secondary smaller flare */}
-      <div
-        style={{
-          position: "absolute",
-          left: `${flareX + 8}%`,
-          top: "45%",
-          width: 200,
-          height: 200,
-          borderRadius: "50%",
-          background: `radial-gradient(circle,
-            rgba(255,200,150,${0.4 * intensity}) 0%,
-            transparent 60%)`,
-          transform: "translate(-50%, -50%)",
-        }}
-      />
-
-      {/* Overall warm glow */}
-      <AbsoluteFill
-        style={{
-          backgroundColor: `rgba(255,240,220,${0.15 * intensity})`,
         }}
       />
     </AbsoluteFill>
@@ -159,25 +157,35 @@ const NoteTransitionComponent: React.FC<{
 }> = ({ children, presentationDirection, presentationProgress }) => {
   const isExiting = presentationDirection === "exiting";
 
-  // Soft crossfade driven by the lens flare
-  const opacity = isExiting
-    ? interpolate(presentationProgress, [0.2, 0.55], [1, 0], {
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp",
-      })
-    : interpolate(presentationProgress, [0.45, 0.8], [0, 1], {
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp",
-      });
+  // Lens flare wipe: clip the scenes at the flare boundary
+  const wipePos = interpolate(
+    presentationProgress,
+    [0.05, 0.95],
+    [0, 100],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.inOut(Easing.quad),
+    },
+  );
+
+  // Exiting scene: visible on the RIGHT side of the wipe (shrinks to nothing)
+  // Entering scene: visible on the LEFT side of the wipe (grows to full)
+  const clipPath = isExiting
+    ? `inset(0 0 0 ${wipePos}%)`
+    : `inset(0 ${100 - wipePos}% 0 0)`;
 
   return (
-    <AbsoluteFill style={{ opacity }}>
-      {children}
-      {/* Lens flare wipe + notes on exiting scene (visible on top) */}
+    <AbsoluteFill>
+      <AbsoluteFill style={{ clipPath }}>
+        {children}
+      </AbsoluteFill>
+
+      {/* Lens flare and notes render on top of everything for BOTH layers */}
       {isExiting && (
         <>
           <LensFlareWipe progress={presentationProgress} />
-          <TransitionNotes progress={presentationProgress} />
+          <NoteFlood progress={presentationProgress} />
         </>
       )}
     </AbsoluteFill>

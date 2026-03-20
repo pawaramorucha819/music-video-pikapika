@@ -24,8 +24,8 @@ const TRANSITION = 20;
 const SHOOTING_STAR_OVERLAY = 30;
 const PRELUDE = 6 * FPS; // 180 (0-6s) — overlay doesn't shorten timeline
 const INTRO = 11 * FPS + TRANSITION; // 350 (7-18s)
-const NOTE_TRANSITION = 25;
-const VERSE = 11 * FPS + NOTE_TRANSITION; // 355 (18-29s)
+const NOTE_TRANSITION = 35;
+const VERSE = 11 * FPS + NOTE_TRANSITION; // 365 (18-29s)
 const PRECHORUS = 13 * FPS + TRANSITION; // 410 (29-42s)
 const CHORUS1 = 9 * FPS + TRANSITION; // 290 (42-51s)
 const CHORUS2 = 9 * FPS; // 270 (51-60s)
@@ -80,7 +80,7 @@ export const MusicVideo: React.FC = () => {
 
         <TransitionSeries.Transition
           presentation={noteTransition()}
-          timing={linearTiming({ durationInFrames: 25 })}
+          timing={linearTiming({ durationInFrames: NOTE_TRANSITION })}
         />
 
         {/* PRE-CHORUS 29-42s */}
