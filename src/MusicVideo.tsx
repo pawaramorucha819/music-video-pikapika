@@ -30,8 +30,8 @@ const NOTE_TRANSITION = 35;
 const VERSE = 11 * FPS + NOTE_TRANSITION; // 365 (18-29s)
 const DIP_TO_WHITE = 70;
 const PRECHORUS = 13 * FPS + DIP_TO_WHITE; // 460 (29-42s)
-const CHORUS1 = 11 * FPS + TRANSITION; // 350 (42-53s)
-const CHORUS2 = 7 * FPS; // 210 (53-60s)
+const CHORUS1 = Math.round(11.5 * FPS) + TRANSITION; // 365 (42-53.5s)
+const CHORUS2 = Math.round(6.5 * FPS); // 195 (53.5-60s)
 
 export const MUSIC_VIDEO_DURATION =
   PRELUDE + INTRO + VERSE + PRECHORUS + CHORUS1 + CHORUS2 -

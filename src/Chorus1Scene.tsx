@@ -260,23 +260,36 @@ const MusicNoteFlood: React.FC<{
     >
       {Array.from({ length: noteCount }, (_, i) => {
         // Stagger note appearance
-        const delay = hash(i * 7, 30);
+        const delay = hash(i * 7, 40);
         const noteLocal = localFrame - delay;
         if (noteLocal < 0) return null;
 
-        // Each note flies outward from TV position
-        const angle = hash(i * 13, 360);
-        const rad = (angle * Math.PI) / 180;
-        const speed = 2.5 + hash(i * 17, 20) / 10;
+        // Spawn from TV frame edge (TV body: 480x360 centered at TV_CX,TV_CY)
+        const tvFrameW = 500;
+        const tvFrameH = 390;
+        const perimeter = (tvFrameW + tvFrameH) * 2;
+        const pos = hash(i * 31, Math.round(perimeter));
+        let edgeX: number;
+        let edgeY: number;
+        if (pos < tvFrameW) {
+          edgeX = TV_CX - tvFrameW / 2 + pos; edgeY = TV_CY - tvFrameH / 2; // top
+        } else if (pos < tvFrameW + tvFrameH) {
+          edgeX = TV_CX + tvFrameW / 2; edgeY = TV_CY - tvFrameH / 2 + (pos - tvFrameW); // right
+        } else if (pos < tvFrameW * 2 + tvFrameH) {
+          edgeX = TV_CX + tvFrameW / 2 - (pos - tvFrameW - tvFrameH); edgeY = TV_CY + tvFrameH / 2; // bottom
+        } else {
+          edgeX = TV_CX - tvFrameW / 2; edgeY = TV_CY + tvFrameH / 2 - (pos - tvFrameW * 2 - tvFrameH); // left
+        }
+
+        // Fly outward from edge
+        const angle = Math.atan2(edgeY - TV_CY, edgeX - TV_CX) + (hash(i * 41, 40) - 20) * 0.02;
+        const speed = 2 + hash(i * 17, 25) / 10;
         const dist = noteLocal * speed;
-        // TV screen position in % (TV_CX=1050/1920, TV_CY=500/1080)
-        const originX = (TV_CX / 1920) * 100;
-        const originY = (TV_CY / 1080) * 100;
-        const x = originX + Math.cos(rad) * dist * 0.05;
-        const y = originY + Math.sin(rad) * dist * 0.04;
+        const x = (edgeX + Math.cos(angle) * dist) / 1920 * 100;
+        const y = (edgeY + Math.sin(angle) * dist) / 1080 * 100;
 
         // Fade in then stay, slight wave
-        const opacity = interpolate(noteLocal, [delay, delay + 10, delay + 80, delay + 120], [0, 0.9, 0.7, 0], {
+        const opacity = interpolate(noteLocal, [0, 8, 70, 110], [0, 0.9, 0.7, 0], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
         });
