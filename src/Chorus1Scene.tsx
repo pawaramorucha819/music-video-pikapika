@@ -247,7 +247,8 @@ const MusicNoteFlood: React.FC<{
   const localFrame = frame - startFrame;
   if (localFrame < 0) return null;
 
-  const noteCount = 50;
+  const noteCount = 10;
+  const NOTE_INTERVAL = 12; // 1つずつ順番に出る間隔
 
   return (
     <div
@@ -259,34 +260,33 @@ const MusicNoteFlood: React.FC<{
       }}
     >
       {Array.from({ length: noteCount }, (_, i) => {
-        // Stagger note appearance
-        const delay = hash(i * 7, 50);
+        // 1つずつ順番に出現
+        const delay = i * NOTE_INTERVAL;
         const noteLocal = localFrame - delay;
         if (noteLocal < 0) return null;
 
-        // Spawn from TV right edge, random Y along the right side
+        // TV右側面から右方向へ出る
         const tvRightX = TV_CX + 250;
-        const tvTopY = TV_CY - 195;
-        const edgeY = tvTopY + hash(i * 31, 390);
+        const startY = TV_CY - 130 + hash(i * 31, 260);
 
-        // Flow leftward with slight vertical wave
-        const speed = 3 + hash(i * 17, 20) / 10;
-        const waveY = Math.sin((noteLocal + hash(i * 23, 60)) * 0.07) * 40;
-        const x = (tvRightX - noteLocal * speed) / 1920 * 100;
-        const y = (edgeY + waveY) / 1080 * 100;
+        // 右方向へ流れる + ゆるい上下波
+        const speed = 4 + hash(i * 17, 15) / 10;
+        const waveY = Math.sin((noteLocal + hash(i * 23, 60)) * 0.06) * 30;
+        const x = (tvRightX + noteLocal * speed) / 1920 * 100;
+        const y = (startY + waveY) / 1080 * 100;
 
-        // Off screen left → hide
-        if (x < -5) return null;
+        // Off screen right → hide
+        if (x > 105) return null;
 
-        // Fade in then stay
-        const opacity = interpolate(noteLocal, [0, 10, 80, 120], [0, 0.9, 0.8, 0], {
+        // Fade in → stay → fade out
+        const opacity = interpolate(noteLocal, [0, 8, 60, 90], [0, 0.9, 0.8, 0], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
         });
         if (opacity <= 0) return null;
 
-        const size = 36 + hash(i * 19, 28);
-        const rotation = Math.sin((noteLocal + hash(i * 29, 50)) * 0.05) * 20;
+        const size = 70 + hash(i * 19, 50);
+        const rotation = Math.sin((noteLocal + hash(i * 29, 50)) * 0.04) * 15;
         const color = NOTE_COLORS[i % NOTE_COLORS.length];
         const symbol = NOTE_SYMBOLS[i % NOTE_SYMBOLS.length];
 
