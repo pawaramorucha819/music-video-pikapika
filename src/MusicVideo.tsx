@@ -27,13 +27,14 @@ const PRELUDE = 6 * FPS; // 180 (0-6s) — overlay doesn't shorten timeline
 const INTRO = 11 * FPS + TRANSITION; // 350 (7-18s)
 const NOTE_TRANSITION = 35;
 const VERSE = 11 * FPS + NOTE_TRANSITION; // 365 (18-29s)
-const PRECHORUS = 13 * FPS + TRANSITION; // 410 (29-42s)
+const DIP_TO_WHITE = 70;
+const PRECHORUS = 13 * FPS + DIP_TO_WHITE; // 460 (29-42s)
 const CHORUS1 = 9 * FPS + TRANSITION; // 290 (42-51s)
 const CHORUS2 = 9 * FPS; // 270 (51-60s)
 
 export const MUSIC_VIDEO_DURATION =
   PRELUDE + INTRO + VERSE + PRECHORUS + CHORUS1 + CHORUS2 -
-  TRANSITION - NOTE_TRANSITION - TRANSITION - TRANSITION;
+  TRANSITION - NOTE_TRANSITION - DIP_TO_WHITE - TRANSITION;
 
 export const MusicVideo: React.FC = () => {
   return (
@@ -98,7 +99,7 @@ export const MusicVideo: React.FC = () => {
 
         <TransitionSeries.Transition
           presentation={dipToWhite()}
-          timing={linearTiming({ durationInFrames: TRANSITION })}
+          timing={linearTiming({ durationInFrames: DIP_TO_WHITE })}
         />
 
         {/* CHORUS Part 1 42-51s */}
