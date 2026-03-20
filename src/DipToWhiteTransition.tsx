@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill } from "remotion";
+import { AbsoluteFill, interpolate, Easing } from "remotion";
 import type {
   TransitionPresentation,
   TransitionPresentationComponentProps,
@@ -10,8 +10,12 @@ const DipToWhiteComponent: React.FC<
 > = ({ children, presentationProgress, presentationDirection }) => {
   const whiteOpacity =
     presentationDirection === "exiting"
-      ? presentationProgress
-      : 1 - presentationProgress;
+      ? interpolate(presentationProgress, [0, 1], [0, 1], {
+          easing: Easing.in(Easing.quad),
+        })
+      : interpolate(presentationProgress, [0, 1], [1, 0], {
+          easing: Easing.out(Easing.quad),
+        });
 
   return (
     <AbsoluteFill>
