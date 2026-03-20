@@ -10,110 +10,153 @@ import { LyricLine } from "./LyricLine";
 
 const { fontFamily } = loadFont();
 
-const PIXEL = 6; // Base pixel size for dot art
+const PIXEL = 4; // Base pixel size
 
-/* ── Pixel art idol sprite frames ── */
-// Each frame is a 12x16 grid (width x height), 1=skin, 2=hair, 3=outfit, 4=skirt, 5=boots, 6=eye, 7=cheek
-const IDLE_POSE: number[][] = [
-  [0,0,0,0,2,2,2,2,0,0,0,0],
-  [0,0,0,2,2,2,2,2,2,0,0,0],
-  [0,0,0,2,2,2,2,2,2,0,0,0],
-  [0,0,0,1,6,1,1,6,1,0,0,0],
-  [0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,0,1,7,1,1,7,1,0,0,0],
-  [0,0,0,0,1,1,1,1,0,0,0,0],
-  [0,0,0,3,3,3,3,3,3,0,0,0],
-  [0,0,3,3,3,3,3,3,3,3,0,0],
-  [0,0,0,1,3,3,3,3,1,0,0,0],
-  [0,0,0,0,4,4,4,4,0,0,0,0],
-  [0,0,0,4,4,4,4,4,4,0,0,0],
-  [0,0,0,4,4,0,0,4,4,0,0,0],
-  [0,0,0,1,1,0,0,1,1,0,0,0],
-  [0,0,0,5,5,0,0,5,5,0,0,0],
-  [0,0,0,5,5,0,0,5,5,0,0,0],
+/* ── 16x24 pixel art idol sprite ──
+   0=transparent, 1=skin, 2=hair, 3=outfit, 4=skirt, 5=boots,
+   6=eye(white), 7=cheek, 8=ribbon, 9=eye(pupil), A=mouth, B=skirt-frill, C=hair-highlight */
+// Use numbers: 10=mouth, 11=frill, 12=highlight
+
+const IDLE: number[][] = [
+  [0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0],
+  [0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0],
+  [0,0,0,0,2,2,12,2,2,12,2,2,0,0,0,0],
+  [0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0],
+  [0,0,0,8,8,2,2,2,2,2,2,8,8,0,0,0],
+  [0,0,0,8,0,2,1,1,1,1,2,0,8,0,0,0],
+  [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+  [0,0,0,0,2,1,6,9,1,6,9,2,0,0,0,0],
+  [0,0,0,0,2,1,1,1,1,1,1,2,0,0,0,0],
+  [0,0,0,0,0,1,7,1,1,7,1,0,0,0,0,0],
+  [0,0,0,0,0,1,1,10,10,1,1,0,0,0,0,0],
+  [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0],
+  [0,0,0,0,0,3,3,3,3,3,3,0,0,0,0,0],
+  [0,0,0,0,3,3,3,3,3,3,3,3,0,0,0,0],
+  [0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,0],
+  [0,0,0,0,0,1,3,3,3,3,1,0,0,0,0,0],
+  [0,0,0,0,11,4,4,4,4,4,4,11,0,0,0,0],
+  [0,0,0,11,4,4,4,4,4,4,4,4,11,0,0,0],
+  [0,0,0,4,4,4,4,4,4,4,4,4,4,0,0,0],
+  [0,0,0,0,4,4,4,0,0,4,4,4,0,0,0,0],
+  [0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0],
+  [0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0],
+  [0,0,0,0,0,5,5,0,0,5,5,0,0,0,0,0],
+  [0,0,0,0,5,5,5,0,0,5,5,5,0,0,0,0],
 ];
 
-const DANCE_LEFT: number[][] = [
-  [0,0,0,0,2,2,2,2,0,0,0,0],
-  [0,0,0,2,2,2,2,2,2,0,0,0],
-  [0,0,0,2,2,2,2,2,2,0,0,0],
-  [0,0,0,1,6,1,1,6,1,0,0,0],
-  [0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,0,1,7,1,1,7,1,0,0,0],
-  [0,0,0,0,1,1,1,1,0,0,0,0],
-  [0,0,0,3,3,3,3,3,3,0,0,0],
-  [0,1,3,3,3,3,3,3,3,0,0,0],
-  [0,1,0,0,3,3,3,3,0,1,0,0],
-  [0,0,0,0,4,4,4,4,0,0,0,0],
-  [0,0,0,4,4,4,4,4,4,0,0,0],
-  [0,0,4,4,0,0,0,0,4,4,0,0],
-  [0,0,1,1,0,0,0,0,1,1,0,0],
-  [0,5,5,0,0,0,0,0,5,5,0,0],
-  [0,5,5,0,0,0,0,0,0,5,5,0],
+const DANCE_L: number[][] = [
+  [0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0],
+  [0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0],
+  [0,0,0,0,2,2,12,2,2,12,2,2,0,0,0,0],
+  [0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0],
+  [0,0,0,8,8,2,2,2,2,2,2,8,8,0,0,0],
+  [0,0,0,8,0,2,1,1,1,1,2,0,8,0,0,0],
+  [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+  [0,0,0,0,2,1,6,9,1,6,9,2,0,0,0,0],
+  [0,0,0,0,2,1,1,1,1,1,1,2,0,0,0,0],
+  [0,0,0,0,0,1,7,1,1,7,1,0,0,0,0,0],
+  [0,0,0,0,0,1,1,10,10,1,1,0,0,0,0,0],
+  [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0],
+  [0,0,0,0,0,3,3,3,3,3,3,0,0,0,0,0],
+  [0,0,1,1,3,3,3,3,3,3,3,3,0,0,0,0],
+  [0,0,0,1,1,3,3,3,3,3,3,0,0,0,0,0],
+  [0,0,0,0,0,1,3,3,3,3,1,0,0,0,0,0],
+  [0,0,0,11,11,4,4,4,4,4,4,11,0,0,0,0],
+  [0,0,11,4,4,4,4,4,4,4,4,4,0,0,0,0],
+  [0,0,4,4,4,4,4,4,4,4,4,4,0,0,0,0],
+  [0,0,0,4,4,4,0,0,0,0,4,4,4,0,0,0],
+  [0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0],
+  [0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0],
+  [0,0,5,5,0,0,0,0,0,0,0,0,5,5,0,0],
+  [0,5,5,5,0,0,0,0,0,0,0,0,5,5,5,0],
 ];
 
-const DANCE_RIGHT: number[][] = [
-  [0,0,0,0,2,2,2,2,0,0,0,0],
-  [0,0,0,2,2,2,2,2,2,0,0,0],
-  [0,0,0,2,2,2,2,2,2,0,0,0],
-  [0,0,0,1,6,1,1,6,1,0,0,0],
-  [0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,0,1,7,1,1,7,1,0,0,0],
-  [0,0,0,0,1,1,1,1,0,0,0,0],
-  [0,0,0,3,3,3,3,3,3,0,0,0],
-  [0,0,0,3,3,3,3,3,3,1,0,0],
-  [0,0,1,0,3,3,3,3,0,0,1,0],
-  [0,0,0,0,4,4,4,4,0,0,0,0],
-  [0,0,0,4,4,4,4,4,4,0,0,0],
-  [0,0,4,4,0,0,0,0,4,4,0,0],
-  [0,0,1,1,0,0,0,0,1,1,0,0],
-  [0,0,5,5,0,0,0,0,0,5,5,0],
-  [0,5,5,0,0,0,0,0,0,5,5,0],
+const DANCE_R: number[][] = [
+  [0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0],
+  [0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0],
+  [0,0,0,0,2,2,12,2,2,12,2,2,0,0,0,0],
+  [0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0],
+  [0,0,0,8,8,2,2,2,2,2,2,8,8,0,0,0],
+  [0,0,0,8,0,2,1,1,1,1,2,0,8,0,0,0],
+  [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+  [0,0,0,0,2,1,6,9,1,6,9,2,0,0,0,0],
+  [0,0,0,0,2,1,1,1,1,1,1,2,0,0,0,0],
+  [0,0,0,0,0,1,7,1,1,7,1,0,0,0,0,0],
+  [0,0,0,0,0,1,1,10,10,1,1,0,0,0,0,0],
+  [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0],
+  [0,0,0,0,0,3,3,3,3,3,3,0,0,0,0,0],
+  [0,0,0,0,3,3,3,3,3,3,3,3,1,1,0,0],
+  [0,0,0,0,0,3,3,3,3,3,3,1,0,0,0,0],
+  [0,0,0,0,0,1,3,3,3,3,1,0,0,0,0,0],
+  [0,0,0,0,11,4,4,4,4,4,4,11,11,0,0,0],
+  [0,0,0,0,4,4,4,4,4,4,4,4,11,0,0,0],
+  [0,0,0,0,4,4,4,4,4,4,4,4,4,0,0,0],
+  [0,0,0,4,4,4,0,0,0,0,4,4,4,0,0,0],
+  [0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0],
+  [0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0],
+  [0,0,5,5,0,0,0,0,0,0,0,0,5,5,0,0],
+  [0,5,5,5,0,0,0,0,0,0,0,0,5,5,5,0],
 ];
 
-const JUMP_POSE: number[][] = [
-  [0,0,0,0,2,2,2,2,0,0,0,0],
-  [0,0,0,2,2,2,2,2,2,0,0,0],
-  [0,0,0,2,2,2,2,2,2,0,0,0],
-  [0,0,0,1,6,1,1,6,1,0,0,0],
-  [0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,0,1,7,1,1,7,1,0,0,0],
-  [0,0,0,0,1,1,1,1,0,0,0,0],
-  [0,1,0,3,3,3,3,3,3,0,1,0],
-  [0,0,1,3,3,3,3,3,3,1,0,0],
-  [0,0,0,0,3,3,3,3,0,0,0,0],
-  [0,0,0,0,4,4,4,4,0,0,0,0],
-  [0,0,0,4,4,4,4,4,4,0,0,0],
-  [0,0,0,4,4,0,0,4,4,0,0,0],
-  [0,0,0,0,1,0,0,1,0,0,0,0],
-  [0,0,0,0,5,0,0,5,0,0,0,0],
-  [0,0,0,0,5,0,0,5,0,0,0,0],
+const JUMP: number[][] = [
+  [0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0],
+  [0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0],
+  [0,0,0,0,2,2,12,2,2,12,2,2,0,0,0,0],
+  [0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0],
+  [0,0,0,8,8,2,2,2,2,2,2,8,8,0,0,0],
+  [0,0,0,8,0,2,1,1,1,1,2,0,8,0,0,0],
+  [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+  [0,0,0,0,2,1,6,9,1,6,9,2,0,0,0,0],
+  [0,0,0,0,2,1,1,1,1,1,1,2,0,0,0,0],
+  [0,0,0,0,0,1,7,1,1,7,1,0,0,0,0,0],
+  [0,0,0,0,0,1,1,10,10,1,1,0,0,0,0,0],
+  [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0],
+  [0,1,0,0,0,3,3,3,3,3,3,0,0,0,1,0],
+  [0,0,1,0,3,3,3,3,3,3,3,3,0,1,0,0],
+  [0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0],
+  [0,0,0,0,0,1,3,3,3,3,1,0,0,0,0,0],
+  [0,0,0,0,11,4,4,4,4,4,4,11,0,0,0,0],
+  [0,0,0,11,4,4,4,4,4,4,4,4,11,0,0,0],
+  [0,0,0,4,4,4,4,4,4,4,4,4,4,0,0,0],
+  [0,0,0,0,0,4,4,0,0,4,4,0,0,0,0,0],
+  [0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0],
+  [0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0],
+  [0,0,0,0,0,5,5,0,0,5,5,0,0,0,0,0],
+  [0,0,0,0,0,5,5,0,0,5,5,0,0,0,0,0],
 ];
 
-const POSES = [IDLE_POSE, DANCE_LEFT, IDLE_POSE, DANCE_RIGHT, JUMP_POSE];
+const POSES = [IDLE, DANCE_L, IDLE, DANCE_R, JUMP];
 
 type IdolColors = {
   hair: string;
+  hairHighlight: string;
   outfit: string;
   skirt: string;
+  frill: string;
   boots: string;
+  ribbon: string;
   cheek: string;
 };
 
-const getPixelColor = (value: number, colors: IdolColors): string | null => {
+const getPixelColor = (value: number, c: IdolColors): string | null => {
   switch (value) {
-    case 1: return "#fcd5b8"; // skin
-    case 2: return colors.hair;
-    case 3: return colors.outfit;
-    case 4: return colors.skirt;
-    case 5: return colors.boots;
-    case 6: return "#2d1b4e"; // eye
-    case 7: return colors.cheek;
+    case 1: return "#fcd5b8";   // skin
+    case 2: return c.hair;
+    case 3: return c.outfit;
+    case 4: return c.skirt;
+    case 5: return c.boots;
+    case 6: return "#ffffff";   // eye white
+    case 7: return c.cheek;
+    case 8: return c.ribbon;
+    case 9: return "#2d1b69";   // pupil
+    case 10: return "#e8787a";  // mouth
+    case 11: return c.frill;
+    case 12: return c.hairHighlight;
     default: return null;
   }
 };
 
-/* ── Single pixel art idol ── */
+/* ── Single pixel idol ── */
 const PixelIdol: React.FC<{
   x: number;
   y: number;
@@ -122,25 +165,14 @@ const PixelIdol: React.FC<{
   scale?: number;
   poseOffset?: number;
 }> = ({ x, y, frame, colors, scale = 1, poseOffset = 0 }) => {
-  // Cycle through poses: 8 frames per pose
   const poseIndex = (Math.floor((frame + poseOffset) / 8)) % POSES.length;
   const pose = POSES[poseIndex];
-
-  // Bounce animation for jump
   const isJump = poseIndex === 4;
-  const bounceY = isJump ? -12 * scale : 0;
-
+  const bounceY = isJump ? -16 * scale : 0;
   const px = PIXEL * scale;
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        left: x,
-        top: y + bounceY,
-        imageRendering: "pixelated",
-      }}
-    >
+    <div style={{ position: "absolute", left: x, top: y + bounceY, imageRendering: "pixelated" }}>
       {pose.map((row, ry) =>
         row.map((val, rx) => {
           const color = getPixelColor(val, colors);
@@ -164,7 +196,7 @@ const PixelIdol: React.FC<{
   );
 };
 
-/* ── Sparkle particles (ぱちぱち) ── */
+/* ── Sparkles ── */
 const hash = (seed: number, mod: number) =>
   ((seed * 7919 + 104729) % mod + mod) % mod;
 
@@ -182,19 +214,11 @@ const Sparkles: React.FC<{ frame: number; count: number }> = ({ frame, count }) 
       const color = colors[i % colors.length];
       const rotation = interpolate(frame + phase, [0, 60], [0, 360], { extrapolateRight: "extend" });
       return (
-        <div
-          key={i}
-          style={{
-            position: "absolute",
-            left: x,
-            top: y,
-            width: size * 2,
-            height: size * 2,
-            opacity,
-            transform: `rotate(${rotation}deg)`,
-          }}
-        >
-          {/* 4-pointed star */}
+        <div key={i} style={{
+          position: "absolute", left: x, top: y,
+          width: size * 2, height: size * 2, opacity,
+          transform: `rotate(${rotation}deg)`,
+        }}>
           <div style={{
             position: "absolute", left: "50%", top: 0, width: 2, height: "100%",
             backgroundColor: color, transform: "translateX(-50%)",
@@ -209,32 +233,17 @@ const Sparkles: React.FC<{ frame: number; count: number }> = ({ frame, count }) 
   </div>
 );
 
-/* ── Stage floor (pixel style) ── */
+/* ── Stage floor ── */
 const PixelStage: React.FC = () => (
-  <div
-    style={{
-      position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: 200,
-      background: "linear-gradient(to top, #1a0a3e 0%, #2d1854 60%, transparent 100%)",
-      imageRendering: "pixelated",
-    }}
-  >
-    {/* Stage floor checker pattern */}
+  <div style={{
+    position: "absolute", bottom: 0, left: 0, right: 0, height: 200,
+    background: "linear-gradient(to top, #1a0a3e 0%, #2d1854 60%, transparent 100%)",
+  }}>
     {Array.from({ length: 20 }, (_, i) => (
-      <div
-        key={i}
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: `${i * 5}%`,
-          width: "5%",
-          height: 40,
-          backgroundColor: i % 2 === 0 ? "rgba(139,92,246,0.3)" : "rgba(6,182,212,0.2)",
-        }}
-      />
+      <div key={i} style={{
+        position: "absolute", bottom: 0, left: `${i * 5}%`, width: "5%", height: 40,
+        backgroundColor: i % 2 === 0 ? "rgba(139,92,246,0.3)" : "rgba(6,182,212,0.2)",
+      }} />
     ))}
   </div>
 );
@@ -250,57 +259,50 @@ export const Chorus2Scene: React.FC<{
   const bgAngle = interpolate(frame, [0, 600], [120, 480]);
 
   const idolConfigs: { x: number; colors: IdolColors; offset: number; scale: number }[] = [
-    { x: 300, colors: { hair: "#f472b6", outfit: "#ec4899", skirt: "#be185d", boots: "#831843", cheek: "#fda4af" }, offset: 0, scale: 1.8 },
-    { x: 700, colors: { hair: "#a78bfa", outfit: "#8b5cf6", skirt: "#6d28d9", boots: "#4c1d95", cheek: "#fda4af" }, offset: 4, scale: 2.2 },
-    { x: 1100, colors: { hair: "#22d3ee", outfit: "#06b6d4", skirt: "#0e7490", boots: "#164e63", cheek: "#fda4af" }, offset: 2, scale: 1.8 },
-    { x: 1500, colors: { hair: "#fbbf24", outfit: "#f59e0b", skirt: "#d97706", boots: "#92400e", cheek: "#fda4af" }, offset: 6, scale: 1.8 },
+    {
+      x: 250, scale: 1.6, offset: 0,
+      colors: { hair: "#f472b6", hairHighlight: "#fbcfe8", outfit: "#ec4899", skirt: "#be185d", frill: "#f9a8d4", boots: "#9d174d", ribbon: "#fbbf24", cheek: "#fda4af" },
+    },
+    {
+      x: 650, scale: 2.0, offset: 4,
+      colors: { hair: "#a78bfa", hairHighlight: "#ddd6fe", outfit: "#8b5cf6", skirt: "#6d28d9", frill: "#c4b5fd", boots: "#5b21b6", ribbon: "#f472b6", cheek: "#fda4af" },
+    },
+    {
+      x: 1050, scale: 2.0, offset: 2,
+      colors: { hair: "#22d3ee", hairHighlight: "#a5f3fc", outfit: "#06b6d4", skirt: "#0e7490", frill: "#67e8f9", boots: "#155e75", ribbon: "#fbbf24", cheek: "#fda4af" },
+    },
+    {
+      x: 1450, scale: 1.6, offset: 6,
+      colors: { hair: "#fbbf24", hairHighlight: "#fef3c7", outfit: "#f59e0b", skirt: "#d97706", frill: "#fde68a", boots: "#92400e", ribbon: "#ec4899", cheek: "#fda4af" },
+    },
   ];
 
   return (
     <AbsoluteFill style={{ fontFamily, imageRendering: "pixelated" }}>
-      {/* Background gradient */}
-      <AbsoluteFill
-        style={{ background: `linear-gradient(${bgAngle}deg, #1a0533, #2d1854, #0c2461)` }}
-      />
+      <AbsoluteFill style={{ background: `linear-gradient(${bgAngle}deg, #1a0533, #2d1854, #0c2461)` }} />
 
-      {/* Spotlight beams */}
+      {/* Spotlights */}
       {idolConfigs.map((idol, i) => (
-        <div
-          key={`light-${i}`}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: idol.x + 20,
-            width: 0,
-            height: 0,
-            borderLeft: "80px solid transparent",
-            borderRight: "80px solid transparent",
-            borderTop: `600px solid ${idol.colors.outfit}15`,
-            transformOrigin: "top center",
-            filter: "blur(6px)",
-          }}
-        />
+        <div key={`light-${i}`} style={{
+          position: "absolute", top: 0, left: idol.x + 15,
+          width: 0, height: 0,
+          borderLeft: "80px solid transparent",
+          borderRight: "80px solid transparent",
+          borderTop: `600px solid ${idol.colors.outfit}15`,
+          transformOrigin: "top center",
+          filter: "blur(6px)",
+        }} />
       ))}
 
       <PixelStage />
 
-      {/* Pixel art idols */}
       {idolConfigs.map((idol, i) => (
-        <PixelIdol
-          key={i}
-          x={idol.x}
-          y={500}
-          frame={frame}
-          colors={idol.colors}
-          scale={idol.scale}
-          poseOffset={idol.offset}
-        />
+        <PixelIdol key={i} x={idol.x} y={480} frame={frame}
+          colors={idol.colors} scale={idol.scale} poseOffset={idol.offset} />
       ))}
 
-      {/* Sparkles (ぱちぱち光る) */}
       <Sparkles frame={frame} count={40} />
 
-      {/* Lyrics */}
       <div style={{
         position: "absolute", bottom: 80, left: 0, right: 0,
         display: "flex", justifyContent: "center", alignItems: "center",
@@ -315,7 +317,6 @@ export const Chorus2Scene: React.FC<{
         })}
       </div>
 
-      {/* Vignette */}
       <AbsoluteFill style={{
         background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%)",
         pointerEvents: "none",
