@@ -9,6 +9,7 @@ import { loadFont } from "@remotion/google-fonts/NotoSansJP";
 import { LyricLine } from "./LyricLine";
 import { SodaBubbles } from "./SodaBubbles";
 import { PastelBurst } from "./PastelBurst";
+import { FlowingNotes } from "./FlowingNotes";
 
 const { fontFamily } = loadFont();
 
@@ -225,6 +226,9 @@ export const VerseScene: React.FC<{
           count={15}
         />
       )}
+
+      {/* Flowing notes — start from "リズムにのって" (frame 255) */}
+      <FlowingNotes enterFrame={255} count={50} />
 
       {/* --- Lyrics: one line at a time, bottom of screen --- */}
       <div
