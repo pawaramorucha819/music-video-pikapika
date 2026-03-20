@@ -158,11 +158,11 @@ export const IntroScene: React.FC<{
   });
 
   // Per-line delays (frames within this section; section starts at 6s)
-  // Line 0: "ピカピカ光る…"   → 6.5s  = frame 15
-  // Line 1: "くるくる回る…"   → 8.0s  = frame 60
-  // Line 2: "ほら始まるよ…"   → 11.17s = frame 155
-  // Line 3: "キミとわたしで…" → 14.0s  = frame 240
-  const lineDelays = [15, 60, 155, 240];
+  // Line 0: "ピカピカ光る…"   → 6.5s   = frame 15
+  // Line 1: "くるくる回る…"   → 8.0s   = frame 60
+  // Line 2: "ほら始まるよ…"   → 11.17s  = frame 155
+  // Line 3: "キミとわたしで…" → 14.12s  = frame 244
+  const lineDelays = [15, 60, 155, 244];
 
   return (
     <AbsoluteFill style={{ fontFamily, overflow: "hidden" }}>

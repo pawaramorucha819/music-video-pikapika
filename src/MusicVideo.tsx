@@ -8,6 +8,7 @@ import { LyricSection } from "./LyricSection";
 import { TitleCard } from "./TitleCard";
 import { ShootingStars } from "./ShootingStars";
 import { IntroScene } from "./IntroScene";
+import { zoom } from "./ZoomTransition";
 
 const FPS = 30;
 const TRANSITION = 20;
@@ -57,7 +58,7 @@ export const MusicVideo: React.FC = () => {
         </TransitionSeries.Sequence>
 
         <TransitionSeries.Transition
-          presentation={fade()}
+          presentation={zoom()}
           timing={linearTiming({ durationInFrames: TRANSITION })}
         />
 
