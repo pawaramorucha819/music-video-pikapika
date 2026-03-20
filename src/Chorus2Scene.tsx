@@ -240,6 +240,163 @@ const PaintFlood: React.FC<{ frame: number; startFrame: number }> = ({ frame, st
   );
 };
 
+/* ── Mirror ball descending from top ── */
+const MirrorBall: React.FC<{ frame: number; startFrame: number }> = ({ frame, startFrame }) => {
+  const local = frame - startFrame;
+  if (local < 0) return null;
+
+  const ballSize = 120;
+  // Descend from above
+  const yPos = interpolate(local, [0, 40], [-ballSize, 180], {
+    extrapolateRight: "clamp",
+    easing: Easing.out(Easing.quad),
+  });
+  // Slow rotation
+  const rotation = local * 2;
+  // Gentle sway
+  const swayX = Math.sin(local * 0.05) * 15;
+
+  // Mirror facets reflection beams
+  const beamCount = 8;
+
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+      {/* Light beams from mirror ball */}
+      {Array.from({ length: beamCount }, (_, i) => {
+        const angle = (i / beamCount) * 360 + rotation;
+        const beamLen = 600 + hash(i * 7, 200);
+        const beamOpacity = interpolate(
+          (local + hash(i * 11, 30)) % 20, [0, 10, 20], [0.05, 0.15, 0.05],
+        );
+        const colors = ["#ec4899", "#8b5cf6", "#06b6d4", "#fbbf24", "#34d399", "#f43f5e", "#a78bfa", "#fff"];
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: 960 + swayX,
+              top: yPos + ballSize / 2,
+              width: 3,
+              height: beamLen,
+              backgroundColor: colors[i % colors.length],
+              opacity: beamOpacity,
+              transform: `rotate(${angle}deg)`,
+              transformOrigin: "top center",
+              filter: "blur(2px)",
+            }}
+          />
+        );
+      })}
+
+      {/* Ball body */}
+      <div
+        style={{
+          position: "absolute",
+          left: 960 - ballSize / 2 + swayX,
+          top: yPos,
+          width: ballSize,
+          height: ballSize,
+          borderRadius: "50%",
+          background: "radial-gradient(circle at 35% 35%, #e0e0e0, #888, #444, #222)",
+          boxShadow: "0 0 40px rgba(255,255,255,0.3), 0 0 80px rgba(139,92,246,0.2)",
+          transform: `rotate(${rotation}deg)`,
+          overflow: "hidden",
+        }}
+      >
+        {/* Mirror facets grid */}
+        {Array.from({ length: 8 }, (_, row) =>
+          Array.from({ length: 8 }, (_, col) => {
+            const facetOpacity = interpolate(
+              (local + row * 3 + col * 5) % 15, [0, 7, 15], [0.1, 0.6, 0.1],
+            );
+            return (
+              <div
+                key={`${row}-${col}`}
+                style={{
+                  position: "absolute",
+                  left: `${col * 12.5}%`,
+                  top: `${row * 12.5}%`,
+                  width: "12.5%",
+                  height: "12.5%",
+                  backgroundColor: "white",
+                  opacity: facetOpacity,
+                  border: "0.5px solid rgba(100,100,100,0.3)",
+                }}
+              />
+            );
+          }),
+        )}
+      </div>
+
+      {/* String */}
+      <div
+        style={{
+          position: "absolute",
+          left: 960 + swayX - 1,
+          top: 0,
+          width: 2,
+          height: yPos,
+          backgroundColor: "rgba(200,200,200,0.5)",
+        }}
+      />
+    </div>
+  );
+};
+
+/* ── Falling music notes ── */
+const NOTE_SYMBOLS = ["♪", "♫", "♬", "♩"];
+const NOTE_COLORS = ["#fbbf24", "#ec4899", "#8b5cf6", "#06b6d4", "#34d399", "#f472b6", "#a78bfa", "#fff"];
+
+const FallingNotes: React.FC<{ frame: number; startFrame: number }> = ({ frame, startFrame }) => {
+  const local = frame - startFrame;
+  if (local < 0) return null;
+
+  const noteCount = 30;
+
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+      {Array.from({ length: noteCount }, (_, i) => {
+        const delay = i * 4;
+        const noteLocal = local - delay;
+        if (noteLocal < 0) return null;
+
+        const x = hash(i * 13, 1920);
+        const startY = -50;
+        const fallSpeed = 2.5 + hash(i * 17, 15) / 10;
+        const y = startY + noteLocal * fallSpeed;
+        if (y > 1100) return null;
+
+        const swayX = Math.sin((noteLocal + hash(i * 23, 60)) * 0.04) * 40;
+        const rotation = Math.sin((noteLocal + hash(i * 29, 50)) * 0.03) * 25;
+        const size = 30 + hash(i * 19, 25);
+        const color = NOTE_COLORS[i % NOTE_COLORS.length];
+        const symbol = NOTE_SYMBOLS[i % NOTE_SYMBOLS.length];
+        const opacity = interpolate(noteLocal, [0, 8, 60, 90], [0, 0.9, 0.8, 0.6], {
+          extrapolateLeft: "clamp", extrapolateRight: "clamp",
+        });
+
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: x + swayX,
+              top: y,
+              fontSize: size,
+              color,
+              opacity,
+              transform: `rotate(${rotation}deg)`,
+              textShadow: `0 0 10px ${color}, 0 0 20px ${color}60`,
+            }}
+          >
+            {symbol}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 /* ── Chorus2Scene ── */
 export const Chorus2Scene: React.FC<{
   lines: string[];
@@ -262,6 +419,10 @@ export const Chorus2Scene: React.FC<{
 
       {/* Paint flood (世界を染める ポップサイン) */}
       <PaintFlood frame={frame} startFrame={lineDelays[1]} />
+
+      {/* Mirror ball + falling notes (歌って笑って はしゃいじゃえ) */}
+      <MirrorBall frame={frame} startFrame={lineDelays[2]} />
+      <FallingNotes frame={frame} startFrame={lineDelays[2]} />
 
       {/* Lyrics */}
       <div style={{
