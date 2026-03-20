@@ -14,9 +14,9 @@ const PIXEL = 4;
 const SPRITE_W = 48;
 const SPRITE_H = 48;
 
-/* ── idle.json palette (0 = transparent) ── */
-const PALETTE: Record<string, string | null> = {
-  "0": null,
+/* ── idle.json palette (all colors including 0) ── */
+const PALETTE: Record<string, string> = {
+  "0": "#EFEEEC",
   "1": "#1F0D08", "2": "#8F5730", "3": "#D66254", "4": "#572514",
   "5": "#A66152", "6": "#CA4839", "7": "#A63229", "8": "#E39770",
   "9": "#F5D8B7", "A": "#E4A992", "B": "#A8A4A0", "C": "#724C31",
@@ -75,9 +75,39 @@ const IDLE_DATA = [
   "000000000000000000000000000000000000000000000000",
 ];
 
-const IDLE_SPRITE: (string | null)[][] = IDLE_DATA.map((row) =>
-  row.split("").map((ch) => PALETTE[ch] ?? null)
-);
+/* ── Flood fill from edges to find background 0s ── */
+const buildSprite = (): (string | null)[][] => {
+  const grid = IDLE_DATA.map((row) => row.split(""));
+  const isBg: boolean[][] = Array.from({ length: SPRITE_H }, () => Array(SPRITE_W).fill(false));
+
+  // BFS from all edge "0" pixels
+  const queue: [number, number][] = [];
+  for (let y = 0; y < SPRITE_H; y++) {
+    for (let x = 0; x < SPRITE_W; x++) {
+      if ((y === 0 || y === SPRITE_H - 1 || x === 0 || x === SPRITE_W - 1) && grid[y][x] === "0") {
+        isBg[y][x] = true;
+        queue.push([y, x]);
+      }
+    }
+  }
+  while (queue.length > 0) {
+    const [cy, cx] = queue.shift()!;
+    for (const [dy, dx] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+      const ny = cy + dy;
+      const nx = cx + dx;
+      if (ny >= 0 && ny < SPRITE_H && nx >= 0 && nx < SPRITE_W && !isBg[ny][nx] && grid[ny][nx] === "0") {
+        isBg[ny][nx] = true;
+        queue.push([ny, nx]);
+      }
+    }
+  }
+
+  return grid.map((row, y) =>
+    row.map((ch, x) => (isBg[y][x] ? null : PALETTE[ch] ?? null))
+  );
+};
+
+const IDLE_SPRITE = buildSprite();
 
 /* ── Render a pixel sprite with dance animation ── */
 const PixelIdol: React.FC<{
