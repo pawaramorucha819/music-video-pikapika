@@ -1,5 +1,11 @@
 import React from "react";
-import { staticFile } from "remotion";
+import {
+  staticFile,
+  AbsoluteFill,
+  useCurrentFrame,
+  useVideoConfig,
+  interpolate,
+} from "remotion";
 import { Audio } from "@remotion/media";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { slide } from "@remotion/transitions/slide";
@@ -31,11 +37,28 @@ const VERSE = 11 * FPS + NOTE_TRANSITION; // 365 (18-29s)
 const DIP_TO_WHITE = 70;
 const PRECHORUS = 13 * FPS + DIP_TO_WHITE; // 460 (29-42s)
 const CHORUS1 = Math.round(11.5 * FPS) + TRANSITION; // 365 (42-53.5s)
-const CHORUS2 = 315; // (53.5-63s) 尺を63秒まで延長
+const CHORUS2 = 465; // (53.5-68s) 尺を68秒まで延長
+const FADEOUT_DURATION = 3 * FPS; // 最後3秒フェードアウト
 
 export const MUSIC_VIDEO_DURATION =
   PRELUDE + INTRO + VERSE + PRECHORUS + CHORUS1 + CHORUS2 -
   TRANSITION - NOTE_TRANSITION - DIP_TO_WHITE - TRANSITION;
+
+const FadeOut: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const opacity = interpolate(
+    frame,
+    [durationInFrames - FADEOUT_DURATION, durationInFrames],
+    [0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  return (
+    <AbsoluteFill
+      style={{ backgroundColor: "black", opacity, pointerEvents: "none" }}
+    />
+  );
+};
 
 export const MusicVideo: React.FC = () => {
   return (
@@ -139,6 +162,9 @@ export const MusicVideo: React.FC = () => {
           />
         </TransitionSeries.Sequence>
       </TransitionSeries>
+
+      {/* 最後3秒フェードアウト */}
+      <FadeOut />
     </>
   );
 };
