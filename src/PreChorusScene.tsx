@@ -4,11 +4,9 @@ import {
   useCurrentFrame,
   useVideoConfig,
   interpolate,
-  Sequence,
   Easing,
 } from "remotion";
 import { loadFont } from "@remotion/google-fonts/NotoSansJP";
-import { LightLeak } from "@remotion/light-leaks";
 import { LyricLine } from "./LyricLine";
 import { Particles } from "./Particles";
 import { PenLights } from "./PenLights";
@@ -126,8 +124,7 @@ const StageLEDs: React.FC<{ frame: number }> = ({ frame }) => {
 /* ── PreChorusScene ── */
 export const PreChorusScene: React.FC<{
   lines: string[];
-  durationInFrames: number;
-}> = ({ lines, durationInFrames }) => {
+}> = ({ lines }) => {
   const frame = useCurrentFrame();
   useVideoConfig();
 
@@ -143,10 +140,6 @@ export const PreChorusScene: React.FC<{
     [1, 0],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.quad) },
   );
-
-  // Light leak at line 3 ("最高潮まで つれてって！")
-  const LIGHT_LEAK_START = 270;
-  const lightLeakDuration = durationInFrames - LIGHT_LEAK_START;
 
   return (
     <AbsoluteFill style={{ fontFamily }}>
@@ -204,16 +197,6 @@ export const PreChorusScene: React.FC<{
 
         <Particles count={25} color="rgba(253,230,138,0.7)" />
       </AbsoluteFill>
-
-      {/* ── Light leak at "最高潮まで つれてって！" ── */}
-      {/* durationInFrames を3倍にして reveal フェーズのまま次セクションへ繋ぐ */}
-      {frame >= LIGHT_LEAK_START && (
-        <Sequence from={LIGHT_LEAK_START} durationInFrames={lightLeakDuration} layout="none">
-          <AbsoluteFill>
-            <LightLeak seed={3} hueShift={30} durationInFrames={lightLeakDuration * 3} />
-          </AbsoluteFill>
-        </Sequence>
-      )}
 
       {/* ── Lyrics (outside grayscale filter) ── */}
       <div

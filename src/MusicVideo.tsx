@@ -1,6 +1,7 @@
 import React from "react";
-import { staticFile } from "remotion";
+import { staticFile, Sequence, AbsoluteFill } from "remotion";
 import { Audio } from "@remotion/media";
+import { LightLeak } from "@remotion/light-leaks";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
@@ -39,6 +40,14 @@ export const MusicVideo: React.FC = () => {
   return (
     <>
       <Audio src={staticFile("music/ピカピカ光る夢のステージで.wav")} />
+
+      {/* Light leak overlay: absolute frames 1110-1261 (PRE-CHORUS〜CHORUS冒頭) */}
+      <Sequence from={1110} durationInFrames={1261 - 1110} layout="none">
+        <AbsoluteFill>
+          <LightLeak seed={3} hueShift={30} durationInFrames={(1261 - 1110) * 3} />
+        </AbsoluteFill>
+      </Sequence>
+
       <TransitionSeries>
         {/* 前奏 0-6s */}
         <TransitionSeries.Sequence durationInFrames={PRELUDE}>
@@ -93,7 +102,6 @@ export const MusicVideo: React.FC = () => {
               "せーのでいこうよ　まだまだもっと",
               "最高潮まで　つれてって！",
             ]}
-            durationInFrames={PRECHORUS}
           />
         </TransitionSeries.Sequence>
 
