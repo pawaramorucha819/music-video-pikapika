@@ -5,13 +5,18 @@ import {
   useVideoConfig,
   interpolate,
   Easing,
+  staticFile,
 } from "remotion";
-import { loadFont } from "@remotion/google-fonts/NotoSansJP";
+import { loadFont } from "@remotion/fonts";
 import { LyricLine } from "./LyricLine";
 import { Particles } from "./Particles";
 import { PenLights } from "./PenLights";
 
-const { fontFamily } = loadFont();
+loadFont({
+  family: "LightNovelPOPv2",
+  url: staticFile("fonts/LightNovelPOPv2.otf"),
+});
+const fontFamily = "LightNovelPOPv2";
 
 const hash = (seed: number, mod: number) =>
   ((seed * 7919 + 104729) % mod + mod) % mod;

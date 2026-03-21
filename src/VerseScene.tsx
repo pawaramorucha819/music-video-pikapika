@@ -4,14 +4,19 @@ import {
   useCurrentFrame,
   interpolate,
   Easing,
+  staticFile,
 } from "remotion";
-import { loadFont } from "@remotion/google-fonts/NotoSansJP";
+import { loadFont } from "@remotion/fonts";
 import { LyricLine } from "./LyricLine";
 import { SodaBubbles } from "./SodaBubbles";
 import { PastelBurst } from "./PastelBurst";
 import { FlowingNotes } from "./FlowingNotes";
 
-const { fontFamily } = loadFont();
+loadFont({
+  family: "LightNovelPOPv2",
+  url: staticFile("fonts/LightNovelPOPv2.otf"),
+});
+const fontFamily = "LightNovelPOPv2";
 
 /** CSS-drawn clouds */
 const Clouds: React.FC<{ frame: number }> = ({ frame }) => {
