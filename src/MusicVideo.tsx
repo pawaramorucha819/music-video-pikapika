@@ -39,9 +39,15 @@ const CHORUS1 = Math.round(11.5 * FPS) + TRANSITION; // 365 (42-53.5s)
 const CHORUS2 = 465; // (53.5-68s) 尺を68秒まで延長
 const FADEOUT_DURATION = 3 * FPS; // 最後3秒フェードアウト
 
-export const MUSIC_VIDEO_DURATION =
+const AUDIO_DURATION_FRAMES = Math.ceil(175.16 * FPS); // フル音源の長さ（約2分55秒）
+
+const VISUAL_DURATION =
   PRELUDE + INTRO + VERSE + PRECHORUS + CHORUS1 + CHORUS2 -
   TRANSITION - NOTE_TRANSITION - DIP_TO_WHITE - TRANSITION;
+
+const REMAINING = AUDIO_DURATION_FRAMES - VISUAL_DURATION; // 映像終了後の黒画面
+
+export const MUSIC_VIDEO_DURATION = AUDIO_DURATION_FRAMES;
 
 const FadeOut: React.FC = () => {
   const frame = useCurrentFrame();
@@ -154,6 +160,11 @@ export const MusicVideo: React.FC = () => {
             ]}
             lineDelays={[45, 109, 201, 285]}
           />
+        </TransitionSeries.Sequence>
+
+        {/* 映像終了後〜音楽終了まで黒画面 */}
+        <TransitionSeries.Sequence durationInFrames={REMAINING}>
+          <AbsoluteFill style={{ backgroundColor: "black" }} />
         </TransitionSeries.Sequence>
       </TransitionSeries>
 
