@@ -58,6 +58,6 @@ npx remotion render
 npm run upgrade
 ```
 
-## ライセンス
+## License
 
-UNLICENSED
+Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
