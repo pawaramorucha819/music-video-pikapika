@@ -60,8 +60,9 @@ npm run upgrade
 
 ## Remotionのライセンスについて
 
-本プロジェクトは映像生成フレームワーク [Remotion](https://www.remotion.dev/) を使用しています。Remotionは**独自のライセンス（Remotion License）**で提供されています。
+本プロジェクトは映像生成フレームワーク [Remotion](https://www.remotion.dev/) を使用しています。Remotionは **独自のライセンス（Remotion License）** で提供されています。
 
 **以下はあくまで2026/3/25時点のものです。最新の情報は必ずご自身で確認のうえ、本プロジェクトを利用してください。**
 詳細は公式のライセンスページを確認してください: https://www.remotion.dev/docs/license/
+
 Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
