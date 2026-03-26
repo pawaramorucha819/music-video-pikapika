@@ -66,3 +66,12 @@ npm run upgrade
 詳細は公式のライセンスページを確認してください: https://www.remotion.dev/docs/license/
 
 Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
+
+## LightNovelPOP v2のライセンスについて
+以下のフォントを利用させていただいてます。
+フォントファイルのダウンロードや利用規約などはこちらをご確認ください。
+
+––––––––––––––––––––––––––––––
+フォント：ラノベPOP V2
+フリーダウンロード：https://flopdesign.booth.pm/items/2328262
+––––––––––––––––––––––––––––––
