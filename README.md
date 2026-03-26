@@ -72,6 +72,8 @@ Note that for some entities a company license is needed. [Read the terms here](h
 フォントファイルのダウンロードや利用規約などはこちらをご確認ください。
 
 ––––––––––––––––––––––––––––––
+
 フォント：ラノベPOP V2
 フリーダウンロード：https://flopdesign.booth.pm/items/2328262
+
 ––––––––––––––––––––––––––––––
