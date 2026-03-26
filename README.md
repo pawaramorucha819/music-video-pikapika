@@ -74,6 +74,7 @@ Note that for some entities a company license is needed. [Read the terms here](h
 ––––––––––––––––––––––––––––––
 
 フォント：ラノベPOP V2
+
 フリーダウンロード：https://flopdesign.booth.pm/items/2328262
 
 ––––––––––––––––––––––––––––––
